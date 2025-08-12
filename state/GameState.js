@@ -1,8 +1,8 @@
 // state/GameState.js
-// - Seeded RNG (Mulberry32 variant) with serialize/deserialize
-// - startNewGame(seed?), continueGame(), save/load in localStorage
-// - Adds 'day' counter in Phase 2
-// - Designed to be Node-testable: storage is injectable and no window access at import time.
+// Phase 3 additions:
+// - Fields: money, morale, buffs, epitaphs (targeted messages per member)
+// - Day counter preserved from Phase 2
+// - Deterministic RNG and save/load as before
 
 const SAVE_KEY = 'canadian-trail-save-v1';
 
@@ -12,7 +12,6 @@ export class RNG {
     this.state = (seed >>> 0) || 1;
   }
   next() {
-    // 32-bit; returns float [0,1)
     this.state = (this.state + 0x6D2B79F5) >>> 0;
     let t = this.state;
     t = Math.imul(t ^ (t >>> 15), t | 1);
@@ -36,15 +35,18 @@ export class GameState {
       day: 1,
       party: [],
       inventory: { food: 100, bullets: 20, clothes: 4, wheel: 1, axle: 1, tongue: 0, medicine: 2 },
+      money: 50,
+      morale: 0,
+      buffs: {},
       miles: 0,
       settings: { pace: 'steady', rations: 'normal' },
       flags: {},
+      epitaphs: defaultEpitaphs(),
       log: []
     };
     this.rng = new RNG(1);
   }
 
-  /** Generate a cryptographically strong seed if possible */
   static randomSeed() {
     try {
       if (globalThis.crypto && globalThis.crypto.getRandomValues) {
@@ -53,13 +55,11 @@ export class GameState {
         return buf[0] >>> 0;
       }
     } catch { /* ignore */ }
-    // Fallback: mix Date.now() + Math.random()
     const a = Math.floor(Date.now() % 0xffffffff) >>> 0;
     const b = Math.floor(Math.random() * 0xffffffff) >>> 0;
     return (a ^ rotateLeft(b, 13)) >>> 0;
   }
 
-  /** Create a fresh game; if seed omitted, generates one */
   startNewGame(seed = GameState.randomSeed()) {
     const party = [
       { id: 'merri-ellen', name: 'Merri‑Ellen', role: 'mom',    health: 5, status: 'well' },
@@ -76,35 +76,39 @@ export class GameState {
       day: 1,
       party,
       inventory: { food: 100, bullets: 30, clothes: 5, wheel: 1, axle: 1, tongue: 0, medicine: 2 },
+      money: 50,
+      morale: 0,
+      buffs: {},
       miles: 0,
       settings: { pace: 'steady', rations: 'normal' },
       flags: { started: true },
+      epitaphs: defaultEpitaphs(),
       log: [`New game started with seed ${seed}`]
     };
     this.rng = new RNG(this.data.rngState);
     this.save();
   }
 
-  /** Continue from saved snapshot (throws on missing/invalid) */
   continueGame() {
     const raw = this.storage.getItem(SAVE_KEY);
     if (!raw) throw new Error('No saved game found.');
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') throw new Error('Corrupt save.');
-    // Backward compatibility: default 'day' if missing
     if (!('day' in parsed)) parsed.day = 1;
+    // Add missing fields for backward compatibility
+    parsed.money ??= 50;
+    parsed.morale ??= 0;
+    parsed.buffs ??= {};
+    parsed.epitaphs ??= defaultEpitaphs();
     this.data = parsed;
     this.rng = new RNG(this.data.rngState || this.data.rngSeed || 1);
   }
 
-  /** Save snapshot (including current RNG state) */
   save() {
-    // Sync current RNG state to data before persisting
     this.data.rngState = this.rng.getState() >>> 0;
     this.storage.setItem(SAVE_KEY, JSON.stringify(this.data));
   }
 
-  /** True if a save exists */
   static hasSave(storage = getDefaultStorage()) {
     try {
       return !!storage.getItem(SAVE_KEY);
@@ -113,7 +117,6 @@ export class GameState {
     }
   }
 
-  /** Advance RNG once and persist its state (for future determinism) */
   rngNext() {
     const v = this.rng.next();
     this.save();
@@ -125,7 +128,6 @@ function getDefaultStorage() {
   try {
     if (typeof window !== 'undefined' && window.localStorage) return window.localStorage;
   } catch { /* ignore */ }
-  // In Node or restricted environments, use an in-memory fallback
   const mem = {};
   return {
     getItem: (k) => (k in mem ? mem[k] : null),
@@ -137,4 +139,15 @@ function getDefaultStorage() {
 
 function rotateLeft(n, bits) {
   return ((n << bits) | (n >>> (32 - bits))) >>> 0;
+}
+
+function defaultEpitaphs() {
+  return {
+    'merri-ellen': 'She kept the family moving.',
+    'mike':        'He would not leave the wagon.',
+    'ros':         'Bright eyes, quick hands.',
+    'jess':        'A laugh that warmed the camp.',
+    'martha':      'She loved buttons and stars.',
+    'rusty':       'Small hands, fierce heart.'
+  };
 }
