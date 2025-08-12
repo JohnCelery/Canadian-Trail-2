@@ -2,49 +2,82 @@
   {
     "id": "stuck-wagon",
     "title": "Wagon stuck in mud",
+    "weight": 4,
+    "when": { "minDay": 2, "mileLt": 300 },
     "stages": [
       {
-        "text": "Recent rains turned the trail to muck. The wagon sinks.",
+        "id": "start",
+        "text": "Rains turned the trail to muck. The wagon sinks to its axles.",
         "choices": [
-          { "id": "push", "label": "Push together", "next": 1 },
-          { "id": "unload", "label": "Unload and lighten", "next": 2 }
+          { "id": "push", "label": "Push together", "effects": [ { "type": "time", "days": 1 } ], "goto": "end" },
+          { "id": "unload", "label": "Unload and lighten", "effects": [ { "type": "time", "days": 0.5 }, { "type": "morale", "delta": -1 } ], "goto": "end" }
         ]
-      },
-      {
-        "text": "Everyone pushes, boots squelching. The wheels lurch free.",
-        "effects": [{ "type": "time", "days": 1 }],
-        "end": true
-      },
-      {
-        "text": "You unload supplies and pry with a board. Messy, but it works.",
-        "effects": [{ "type": "time", "days": 0.5 }, { "type": "morale", "delta": -1 }],
-        "end": true
       }
-    ],
-    "weight": 1
+    ]
   },
   {
     "id": "child-fever",
     "title": "A child runs a fever",
+    "weight": 3,
+    "when": { "minDay": 3 },
     "stages": [
       {
-        "text": "Through the night, a child shivers with fever.",
+        "id": "start",
+        "text": "Through the night, {child} shivers with fever.",
         "choices": [
-          { "id": "rest", "label": "Rest a day", "next": 1 },
-          { "id": "dose", "label": "Dose medicine", "next": 2 }
+          { "id": "rest", "label": "Rest a day", "effects": [ { "type": "time", "days": 1 }, { "type": "health", "target": "family", "delta": 1 } ], "goto": "end" },
+          { "id": "dose", "label": "Dose medicine", "requires": { "inventory": { "medicineGte": 1 } }, "effects": [ { "type": "inventory", "item": "medicine", "delta": -1 }, { "type": "health", "target": "child", "delta": 1 }, { "type": "morale", "delta": 1 } ], "goto": "end" }
         ]
-      },
-      {
-        "text": "You rest and keep them warm. Fever eases by morning.",
-        "effects": [{ "type": "time", "days": 1 }, { "type": "health", "delta": +1 }],
-        "end": true
-      },
-      {
-        "text": "You give a careful dose. They sleep, sweating, and recover.",
-        "effects": [{ "type": "inventory", "item": "medicine", "delta": -1 }, { "type": "health", "delta": +1 }],
-        "end": true
       }
-    ],
-    "weight": 1
+    ]
+  },
+  {
+    "id": "broken-axle",
+    "title": "Broken axle",
+    "weight": 4,
+    "when": { "minDay": 2, "mileGte": 100 },
+    "stages": [
+      {
+        "id": "start",
+        "text": "A rut snaps an axle with a crack.",
+        "choices": [
+          { "id": "spare", "label": "Use a spare axle", "requires": { "inventory": { "axleGte": 1 } }, "effects": [ { "type": "inventory", "item": "axle", "delta": -1 }, { "type": "time", "days": 0.5 } ], "goto": "end" },
+          { "id": "improvise", "label": "Improvise a repair", "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": -1 } ], "goto": "end" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bandits",
+    "title": "Roadside bandits",
+    "weight": 2,
+    "when": { "minDay": 5 },
+    "stages": [
+      {
+        "id": "start",
+        "text": "Figures step from the brush and demand coin.",
+        "choices": [
+          { "id": "pay", "label": "Pay $10", "requires": { "moneyGte": 10 }, "effects": [ { "type": "money", "delta": -10 }, { "type": "morale", "delta": -1 } ], "goto": "end" },
+          { "id": "stand", "label": "Stand firm", "effects": [ { "type": "roll", "options": [ { "weight": 2, "effects": [ { "type": "health", "target": "random", "delta": -1 }, { "type": "morale", "delta": -1 } ], "log": "A scuffle leaves bruises." }, { "weight": 1, "effects": [ { "type": "inventory", "item": "bullets", "delta": -3 }, { "type": "morale", "delta": 1 } ], "log": "They back down at the sight of steel." } ] } ], "goto": "end" },
+          { "id": "run", "label": "Run the team hard", "effects": [ { "type": "distance", "miles": -5 } ], "goto": "end" }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "snakebite",
+    "title": "Snakebite!",
+    "weight": 1,
+    "when": { "minDay": 4, "mileLt": 600 },
+    "stages": [
+      {
+        "id": "start",
+        "text": "A hidden coil, a flash—someone is bitten.",
+        "choices": [
+          { "id": "treat", "label": "Clean and treat", "effects": [ { "type": "health", "target": "random", "delta": -1 } ], "goto": "end" },
+          { "id": "grave", "label": "It turns for the worse…", "effects": [ { "type": "mortality", "target": "random", "reason": "Taken by a sudden bite." } ], "goto": "end" }
+        ]
+      }
+    ]
   }
 ]
