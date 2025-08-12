@@ -1,0 +1,9 @@
+[
+  { "id": "food",     "name": "Rations (lb)",      "price": 0.20, "stack": true },
+  { "id": "bullets",  "name": "Bullets",           "price": 0.05, "stack": true },
+  { "id": "clothes",  "name": "Warm Clothes",      "price": 2.00, "stack": true },
+  { "id": "wheel",    "name": "Wagon Wheel",       "price": 10.0, "stack": true },
+  { "id": "axle",     "name": "Wagon Axle",        "price": 12.0, "stack": true },
+  { "id": "tongue",   "name": "Wagon Tongue",      "price": 15.0, "stack": true },
+  { "id": "medicine", "name": "Medicine",          "price": 4.00, "stack": true }
+]
