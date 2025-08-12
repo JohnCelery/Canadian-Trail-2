@@ -1,0 +1,5 @@
+[
+  { "id": "rabbit",  "name": "Rabbit",  "speed": 2.1, "meat": 2,   "spawnWeight": 3 },
+  { "id": "deer",    "name": "Deer",    "speed": 1.2, "meat": 40,  "spawnWeight": 5 },
+  { "id": "buffalo", "name": "Bison",   "speed": 0.8, "meat": 300, "spawnWeight": 1 }
+]
