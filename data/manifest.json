@@ -1,0 +1,12 @@
+{
+  "//": "Asset manifest: if a file is missing, systems/assets.js will generate a crisp placeholder with the provided size & a label.",
+  "images": {
+    "ui.icon_food":      { "src": "assets/img/ui/icon_food.png",      "w": 32,  "h": 32,  "label": "Food" },
+    "ui.icon_bullets":   { "src": "assets/img/ui/icon_bullets.png",   "w": 32,  "h": 32,  "label": "Bullets" },
+    "ui.icon_tools":     { "src": "assets/img/ui/icon_tools.png",     "w": 32,  "h": 32,  "label": "Tools" },
+    "ui.icon_clothes":   { "src": "assets/img/ui/icon_clothes.png",   "w": 32,  "h": 32,  "label": "Clothes" },
+
+    "scene.bg_plains":   { "src": "assets/img/scene/bg_plains.png",   "w": 960, "h": 320, "label": "Plains" },
+    "scenes.title":      { "src": "assets/img/scene/title_bg.png",    "w": 1200,"h": 540, "label": "Title" }
+  }
+}
