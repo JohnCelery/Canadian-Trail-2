@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <!--
+    Canadian Trail — Phase 1 Bootstrap
+    - Static, vanilla ES modules
+    - Mobile-first, accessible, no frameworks
+    - Title screen only for now; Travel screen is a stub
+  -->
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Canadian Trail</title>
+    <meta name="color-scheme" content="light dark" />
+    <meta name="description" content="Canadian Trail — a day-by-day pioneer journey. Phase 1 bootstrap." />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#app" aria-label="Skip to main content">Skip to content</a>
+
+    <main id="app" class="container" role="main" tabindex="-1" aria-live="polite">
+      <!-- App content mounts here -->
+      <noscript>
+        <div class="card card-warn" role="alert">
+          <h2>JavaScript required</h2>
+          <p>This game is a web app and needs JavaScript enabled.</p>
+        </div>
+      </noscript>
+    </main>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
