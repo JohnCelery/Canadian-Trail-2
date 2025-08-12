@@ -1,0 +1,42 @@
+[
+  {
+    "id": "kingston",
+    "name": "Kingston",
+    "mile": 0,
+    "services": ["shop", "ferry"],
+    "notes": "Starting town on Lake Ontario.",
+    "river": false
+  },
+  {
+    "id": "bytown",
+    "name": "Bytown (Ottawa)",
+    "mile": 120,
+    "services": ["shop"],
+    "notes": "A growing lumber town along the river.",
+    "river": false
+  },
+  {
+    "id": "mattawa",
+    "name": "Mattawa",
+    "mile": 240,
+    "services": ["shop", "ferry"],
+    "notes": "Junction of rivers; trading post nearby.",
+    "river": false
+  },
+  {
+    "id": "sault",
+    "name": "Sault Ste. Marie",
+    "mile": 520,
+    "services": ["shop"],
+    "notes": "Canal and rapids; supplies limited.",
+    "river": false
+  },
+  {
+    "id": "red-river",
+    "name": "Red River Settlement",
+    "mile": 920,
+    "services": ["shop"],
+    "notes": "A welcome rest after long prairies.",
+    "river": false
+  }
+]
