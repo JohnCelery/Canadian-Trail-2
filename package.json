@@ -1,0 +1,13 @@
+```json
+{
+  "name": "canadian-trail",
+  "version": "0.1.0",
+  "description": "Canadian Trail — Phase 1 Bootstrap (static, vanilla, ES modules).",
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 5173 || python -m http.server 5173",
+    "test": "node tests/run.js"
+  },
+  "license": "MIT",
+  "private": true
+}
