@@ -1,6 +1,7 @@
 // state/GameState.js
 // - Seeded RNG (Mulberry32 variant) with serialize/deserialize
 // - startNewGame(seed?), continueGame(), save/load in localStorage
+// - Adds 'day' counter in Phase 2
 // - Designed to be Node-testable: storage is injectable and no window access at import time.
 
 const SAVE_KEY = 'canadian-trail-save-v1';
@@ -32,6 +33,7 @@ export class GameState {
       version: 1,
       rngSeed: 1,
       rngState: 1,
+      day: 1,
       party: [],
       inventory: { food: 100, bullets: 20, clothes: 4, wheel: 1, axle: 1, tongue: 0, medicine: 2 },
       miles: 0,
@@ -71,6 +73,7 @@ export class GameState {
       version: 1,
       rngSeed: seed >>> 0,
       rngState: seed >>> 0,
+      day: 1,
       party,
       inventory: { food: 100, bullets: 30, clothes: 5, wheel: 1, axle: 1, tongue: 0, medicine: 2 },
       miles: 0,
@@ -88,6 +91,8 @@ export class GameState {
     if (!raw) throw new Error('No saved game found.');
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') throw new Error('Corrupt save.');
+    // Backward compatibility: default 'day' if missing
+    if (!('day' in parsed)) parsed.day = 1;
     this.data = parsed;
     this.rng = new RNG(this.data.rngState || this.data.rngSeed || 1);
   }
