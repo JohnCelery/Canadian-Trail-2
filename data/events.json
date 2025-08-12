@@ -1,0 +1,50 @@
+[
+  {
+    "id": "stuck-wagon",
+    "title": "Wagon stuck in mud",
+    "stages": [
+      {
+        "text": "Recent rains turned the trail to muck. The wagon sinks.",
+        "choices": [
+          { "id": "push", "label": "Push together", "next": 1 },
+          { "id": "unload", "label": "Unload and lighten", "next": 2 }
+        ]
+      },
+      {
+        "text": "Everyone pushes, boots squelching. The wheels lurch free.",
+        "effects": [{ "type": "time", "days": 1 }],
+        "end": true
+      },
+      {
+        "text": "You unload supplies and pry with a board. Messy, but it works.",
+        "effects": [{ "type": "time", "days": 0.5 }, { "type": "morale", "delta": -1 }],
+        "end": true
+      }
+    ],
+    "weight": 1
+  },
+  {
+    "id": "child-fever",
+    "title": "A child runs a fever",
+    "stages": [
+      {
+        "text": "Through the night, a child shivers with fever.",
+        "choices": [
+          { "id": "rest", "label": "Rest a day", "next": 1 },
+          { "id": "dose", "label": "Dose medicine", "next": 2 }
+        ]
+      },
+      {
+        "text": "You rest and keep them warm. Fever eases by morning.",
+        "effects": [{ "type": "time", "days": 1 }, { "type": "health", "delta": +1 }],
+        "end": true
+      },
+      {
+        "text": "You give a careful dose. They sleep, sweating, and recover.",
+        "effects": [{ "type": "inventory", "item": "medicine", "delta": -1 }, { "type": "health", "delta": +1 }],
+        "end": true
+      }
+    ],
+    "weight": 1
+  }
+]
