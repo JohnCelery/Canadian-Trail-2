@@ -1,16 +1,13 @@
-// ui/TravelScreen.js — Phase 2
-// Functional Travel screen with:
-// - Pace & rations controls (selects)
-// - Travel / Rest actions (one day each)
-// - Party list with health meters
-// - Inventory summary (icons + counts)
-// - Route progress bar + next landmark info
-// - Event log (simple, deterministic; advanced events in Phase 3)
-// - Auto-save at end of each day
+// ui/TravelScreen.js — Phase 3
+// Adds Advanced Event Engine integration:
+// - After each Travel/Rest day, may open an event modal (weighted, gated, seeded).
+// - Logs outcomes; applies effects to inventory/health/money/etc.
 
 import { getImage, getMeta } from '../systems/assets.js';
 import { loadJSON } from '../systems/jsonLoader.js';
 import { applyTravelDay, applyRestDay, PACE, RATIONS, milesPerDay, RATIONS_LB } from '../systems/travel.js';
+import { maybeTriggerEvent } from '../systems/eventEngine.js';
+import { showEventModal } from './EventModal.js';
 
 export async function mountTravelScreen(root, { game, onBackToTitle }) {
   // Load route data
@@ -125,7 +122,7 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
 
   btnTitle.addEventListener('click', () => onBackToTitle?.());
 
-  btnTravel.addEventListener('click', (e) => {
+  btnTravel.addEventListener('click', async (e) => {
     e.preventDefault();
     if (journeyComplete()) return;
     const beforeMiles = game.data.miles;
@@ -139,9 +136,12 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     addLog(`Day ${game.data.day - 1}: Traveled ${fmtMiles(summary.milesTraveled)}. Ate ${fmtLb(summary.foodConsumed)}.${starv} Health ${fmtSigned(summary.healthDelta)}.`);
     game.save();
     render();
+
+    // Maybe open an event
+    await maybeOpenEvent();
   });
 
-  btnRest.addEventListener('click', (e) => {
+  btnRest.addEventListener('click', async (e) => {
     e.preventDefault();
     if (journeyComplete()) return;
     const summary = applyRestDay(game);
@@ -149,7 +149,20 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     addLog(`Day ${game.data.day - 1}: Rested. Ate ${fmtLb(summary.foodConsumed)}.${starv} Health ${fmtSigned(summary.healthDelta)}.`);
     game.save();
     render();
+
+    // Maybe open an event
+    await maybeOpenEvent();
   });
+
+  async function maybeOpenEvent() {
+    const session = await maybeTriggerEvent(game);
+    if (!session) return;
+    await showEventModal(session, { game });
+    // Event may have changed state; re-render and show any fresh log lines
+    game.save();
+    drawLog();
+    render();
+  }
 
   // ---------- render ----------
   function render() {
@@ -170,17 +183,17 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
       const dist = Math.max(0, next.mile - miles);
       nl.textContent = `Next: ${next.name} in ${fmtMiles(dist)} (mile ${next.mile}).`;
     } else {
-      nl.textContent = 'Journey complete (Phase 3+ will continue at the destination).';
+      nl.textContent = 'Journey complete (more content unlocks in later phases).';
     }
 
-    // Supplies
+    // Supplies (added Money row)
     const sup = suppliesCard.querySelector('#supplies');
     sup.innerHTML = '';
     sup.append(
+      supplyItem('ui.icon_money',   'Money ($)', game.data.money ?? 0),
       supplyItem('ui.icon_food',    'Food (lb)', game.data.inventory.food),
       supplyItem('ui.icon_bullets', 'Bullets',   game.data.inventory.bullets),
-      supplyItem('ui.icon_clothes', 'Clothes',   game.data.inventory.clothes),
-      supplyItem('ui.icon_tools',   'Medicine',  game.data.inventory.medicine)
+      supplyItem('ui.icon_clothes', 'Clothes',   game.data.inventory.clothes)
     );
     const spares = suppliesCard.querySelector('#spares');
     spares.textContent = `Spare parts — Wheels: ${game.data.inventory.wheel ?? 0}, Axles: ${game.data.inventory.axle ?? 0}, Tongues: ${game.data.inventory.tongue ?? 0}`;
@@ -194,7 +207,7 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
       row.innerHTML = `
         <div class="party-name">
           <strong>${escapeHTML(m.name)}</strong>
-          <span class="muted">${m.role}${m.age ? ` · ${m.age}` : ''}</span>
+          <span class="muted">${m.role}${m.age ? ` · ${m.age}` : ''}${m.status === 'dead' ? ' · ☠︎' : ''}</span>
         </div>
         <div class="party-health">
           <label class="visually-hidden" for="meter-${m.id}">Health of ${escapeHTML(m.name)}</label>
@@ -206,7 +219,8 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     }
 
     // Travel enabled?
-    btnTravel.disabled = journeyComplete();
+    const completed = journeyComplete();
+    btnTravel.disabled = completed || (game.data.party || []).every(p => p.status === 'dead');
   }
 
   function journeyComplete() {
@@ -222,7 +236,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
   function drawLog() {
     const logEl = logCard.querySelector('#log');
     logEl.innerHTML = '';
-    // Show newest last (natural reading)
     const last = game.data.log.slice(-20);
     for (const item of last) {
       const li = document.createElement('li');
@@ -276,7 +289,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
   }
 
   // Initial render
-  // Add a starting message the first time we land here in a fresh run
   if (!game.data.flags?.phase2_init_logged) {
     const here = nextLandmark(landmarks, -1) ?? { name: 'the trailhead', mile: 0 };
     addLog(`Setting out from ${here.name}.`);
