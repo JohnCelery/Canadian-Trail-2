@@ -1,0 +1,182 @@
+{
+"maxConcurrent": 3,
+"baseDailyAcquireChance": 0.25,
+"conditions": [
+{
+"id": "hockey_blues",
+"name": "Hockey Blues",
+"emoji": "🏒",
+"kind": "mood",
+"weight": 3,
+"durationDays": [2, 4],
+"effects": { "speedMult": 0.97, "healthChancePerDay": 0.00, "hungerMult": 1.00 },
+"trigger": { "minDay": 2, "cooldownDays": 6 },
+"blurb": "Haven’t watched a game in ages. Skate slowly; sigh often."
+},
+{
+"id": "ketchup_chip_withdrawal",
+"name": "Ketchup Chip Withdrawal",
+"emoji": "🍟",
+"kind": "appetite",
+"weight": 3,
+"durationDays": [2, 5],
+"effects": { "speedMult": 1.00, "healthChancePerDay": 0.05, "hungerMult": 1.15 },
+"trigger": { "minDay": 2, "cooldownDays": 8 },
+"blurb": "Everything tastes… insufficiently red."
+},
+{
+"id": "cooties_outbreak",
+"name": "Cooties (Playground Outbreak)",
+"emoji": "🧸",
+"kind": "silly",
+"weight": 2,
+"durationDays": [1, 3],
+"effects": { "speedMult": 0.99, "healthChancePerDay": 0.20, "hungerMult": 1.00 },
+"trigger": { "minDay": 1, "cooldownDays": 5 },
+"blurb": "Statistically harmless, emotionally devastating."
+},
+{
+"id": "timbit_withdrawal",
+"name": "Timbit Withdrawal",
+"emoji": "🍩",
+"kind": "appetite",
+"weight": 2,
+"durationDays": [2, 4],
+"effects": { "speedMult": 1.00, "healthChancePerDay": 0.05, "hungerMult": 1.10 },
+"trigger": { "minDay": 1, "cooldownDays": 7 },
+"blurb": "Keep looking for a 24‑hour Tims that exists only in memory."
+},
+{
+"id": "poutine_overload",
+"name": "Poutine Overload",
+"emoji": "🍛",
+"kind": "digestive",
+"weight": 2,
+"durationDays": [1, 2],
+"effects": { "speedMult": 0.95, "healthChancePerDay": 0.10, "hungerMult": 0.95 },
+"trigger": { "minDay": 3, "cooldownDays": 10 },
+"blurb": "Gravy decisions were made."
+},
+{
+"id": "loonie_earworm",
+"name": "Loony Tunes Earworm",
+"emoji": "🎶",
+"kind": "mood",
+"weight": 2,
+"durationDays": [2, 4],
+"effects": { "speedMult": 0.98, "healthChancePerDay": 0.00, "hungerMult": 1.00 },
+"trigger": { "minDay": 1, "cooldownDays": 6 },
+"blurb": "The anthem loop will not stop."
+},
+{
+"id": "maple_sticky",
+"name": "Maple Syrup Sticky",
+"emoji": "🍁",
+"kind": "mess",
+"weight": 2,
+"durationDays": [1, 3],
+"effects": { "speedMult": 0.97, "healthChancePerDay": 0.00, "hungerMult": 1.05 },
+"trigger": { "minDay": 1, "cooldownDays": 5 },
+"blurb": "Everything is slightly sticky. Morale is slightly higher."
+},
+{
+"id": "moose_flu",
+"name": "Moose Flu",
+"emoji": "🫎",
+"kind": "illness",
+"weight": 1,
+"durationDays": [2, 5],
+"effects": { "speedMult": 0.90, "healthChancePerDay": 0.25, "hungerMult": 0.90 },
+"trigger": { "minDay": 4, "cooldownDays": 10 },
+"blurb": "An outsized sniffle with antlered attitude."
+},
+{
+"id": "beaver_toothache",
+"name": "Beavered Toothache",
+"emoji": "🦫",
+"kind": "ache",
+"weight": 2,
+"durationDays": [1, 3],
+"effects": { "speedMult": 0.96, "healthChancePerDay": 0.15, "hungerMult": 0.95 },
+"trigger": { "minDay": 3, "cooldownDays": 7 },
+"blurb": "Chewed the wrong stick."
+},
+{
+"id": "canoe_shoulders",
+"name": "Canoe Shoulders",
+"emoji": "🛶",
+"kind": "ache",
+"weight": 2,
+"durationDays": [2, 4],
+"effects": { "speedMult": 0.93, "healthChancePerDay": 0.05, "hungerMult": 1.05 },
+"trigger": { "minDay": 2, "cooldownDays": 8 },
+"blurb": "Portage posture permanently compromised."
+},
+{
+"id": "northern_lights_insomnia",
+"name": "Northern Lights Insomnia",
+"emoji": "🌌",
+"kind": "sleep",
+"weight": 2,
+"durationDays": [2, 4],
+"effects": { "speedMult": 0.92, "healthChancePerDay": 0.10, "hungerMult": 1.00 },
+"trigger": { "minDay": 5, "cooldownDays": 9 },
+"blurb": "Too pretty to sleep, too tired to hustle."
+},
+{
+"id": "snow_blindish",
+"name": "Snow‑Blind(‑ish)",
+"emoji": "😎",
+"kind": "vision",
+"weight": 2,
+"durationDays": [1, 3],
+"effects": { "speedMult": 0.94, "healthChancePerDay": 0.05, "hungerMult": 1.00 },
+"trigger": { "minDay": 3, "cooldownDays": 7 },
+"blurb": "Forgot the sunglasses, remembered the glare."
+},
+{
+"id": "tuque_hair",
+"name": "Tuque Hair",
+"emoji": "🧢",
+"kind": "style",
+"weight": 2,
+"durationDays": [1, 2],
+"effects": { "speedMult": 1.00, "healthChancePerDay": 0.00, "hungerMult": 1.00 },
+"trigger": { "minDay": 1, "cooldownDays": 4 },
+"blurb": "No effect except vibes—and the vibes are immaculate."
+},
+{
+"id": "politeness_fatigue",
+"name": "Politeness Fatigue",
+"emoji": "🙏",
+"kind": "mood",
+"weight": 2,
+"durationDays": [1, 3],
+"effects": { "speedMult": 0.99, "healthChancePerDay": 0.05, "hungerMult": 1.00 },
+"trigger": { "minDay": 2, "cooldownDays": 6 },
+"blurb": "Saying sorry about saying sorry."
+},
+{
+"id": "maple_sugar_crash",
+"name": "Maple Sugar Rush (Crash)",
+"emoji": "🥞",
+"kind": "sugar",
+"weight": 2,
+"durationDays": [1, 2],
+"effects": { "speedMult": 0.96, "healthChancePerDay": 0.10, "hungerMult": 0.90 },
+"trigger": { "minDay": 2, "cooldownDays": 7 },
+"blurb": "The trees giveth, the glycemic index taketh away."
+},
+{
+"id": "goalie_bruise",
+"name": "Goalie Bruise",
+"emoji": "🥅",
+"kind": "injury",
+"weight": 2,
+"durationDays": [1, 3],
+"effects": { "speedMult": 0.97, "healthChancePerDay": 0.20, "hungerMult": 1.00 },
+"trigger": { "minDay": 3, "cooldownDays": 7 },
+"blurb": "Took one for the team. The team says 'thanks'."
+}
+]
+}
