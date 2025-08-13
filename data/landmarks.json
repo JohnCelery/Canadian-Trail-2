@@ -1,42 +1,70 @@
 [
   {
-    "id": "kingston",
-    "name": "Kingston",
+    "id": "trailhead",
     "mile": 0,
-    "services": ["shop", "ferry"],
-    "notes": "Starting town on Lake Ontario.",
-    "river": false
+    "name": "Trailhead (Somewhere in Ontario)",
+    "notes": "A tank of gas, a trunk of snacks, hope in the glovebox.",
+    "services": []
   },
   {
-    "id": "bytown",
-    "name": "Bytown (Ottawa)",
+    "id": "ottawa-river-crossing",
+    "mile": 110,
+    "name": "Ottawa River Crossing",
+    "notes": "Locals shrug: \"It’s only a little high.\"",
+    "hazard": { "kind": "river", "depthFt": 2.6, "widthFt": 240, "current": "moderate" },
+    "services": []
+  },
+  {
+    "id": "bytown-ottawa",
     "mile": 120,
-    "services": ["shop"],
-    "notes": "A growing lumber town along the river.",
-    "river": false
+    "name": "Bytown (Ottawa)",
+    "notes": "Frontier prices, immaculate manners.",
+    "services": ["shop"]
   },
   {
-    "id": "mattawa",
-    "name": "Mattawa",
-    "mile": 240,
-    "services": ["shop", "ferry"],
-    "notes": "Junction of rivers; trading post nearby.",
-    "river": false
+    "id": "geese-encampment-hwy17",
+    "mile": 230,
+    "name": "Geese Encampment — Hwy 17",
+    "notes": "Feathered bureaucracy occupies the shoulder.",
+    "hazard": { "kind": "geese", "flock": 80 },
+    "services": []
   },
   {
-    "id": "sault",
-    "name": "Sault Ste. Marie",
-    "mile": 520,
-    "services": ["shop"],
-    "notes": "Canal and rapids; supplies limited.",
-    "river": false
+    "id": "algoma-gumbo-bog",
+    "mile": 360,
+    "name": "Algoma Gumbo Bog",
+    "notes": "Prairie clay with opinions.",
+    "hazard": { "kind": "mud", "badness": 0.7 },
+    "services": []
   },
   {
-    "id": "red-river",
-    "name": "Red River Settlement",
-    "mile": 920,
-    "services": ["shop"],
-    "notes": "A welcome rest after long prairies.",
-    "river": false
+    "id": "sleeping-giant-drift",
+    "mile": 540,
+    "name": "Sleeping Giant Snowdrift",
+    "notes": "Wind carves a white barrier over the blacktop.",
+    "hazard": { "kind": "snow", "driftFt": 2.2 },
+    "services": []
+  },
+  {
+    "id": "beavered-bridge",
+    "mile": 700,
+    "name": "Beavered Bridge (Washout)",
+    "notes": "Beavers are remodeling. The bridge disagrees.",
+    "hazard": { "kind": "beaver", "gapFt": 8 },
+    "services": []
+  },
+  {
+    "id": "prairie-town",
+    "mile": 820,
+    "name": "Prairie Town",
+    "notes": "Coffee hot, stories hotter.",
+    "services": ["shop"]
+  },
+  {
+    "id": "the-last-legs",
+    "mile": 1000,
+    "name": "Last Gas Before the Rockies",
+    "notes": "A sign with dire promises and a friendly wave.",
+    "services": ["shop"]
   }
 ]
