@@ -1,25 +1,20 @@
-// ui/TravelScreen.js — Phase 3
-// Adds Advanced Event Engine integration:
-// - After each Travel/Rest day, may open an event modal (weighted, gated, seeded).
-// - Logs outcomes; applies effects to inventory/health/money/etc.
+// ui/TravelScreen.js — Phase 4
+// Integrates Landmarks: when you reach a landmark, open a Landmark screen,
+// from which you can enter the Shop (if available) or continue.
 
 import { getImage, getMeta } from '../systems/assets.js';
 import { loadJSON } from '../systems/jsonLoader.js';
 import { applyTravelDay, applyRestDay, PACE, RATIONS, milesPerDay, RATIONS_LB } from '../systems/travel.js';
 import { maybeTriggerEvent } from '../systems/eventEngine.js';
-import { showEventModal } from './EventModal.js';
 
-export async function mountTravelScreen(root, { game, onBackToTitle }) {
-  // Load route data
+export async function mountTravelScreen(root, { game, onBackToTitle, onReachLandmark }) {
   const landmarks = await loadJSON('../data/landmarks.json');
   landmarks.sort((a, b) => a.mile - b.mile);
   const totalMiles = landmarks.length ? landmarks[landmarks.length - 1].mile : 1000;
 
-  // DOM skeleton
   const wrap = document.createElement('div');
   wrap.className = 'grid-layout';
 
-  // Header / Progress
   const progressCard = document.createElement('section');
   progressCard.className = 'card';
   progressCard.innerHTML = `
@@ -39,7 +34,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     <div class="muted" id="next-landmark"></div>
   `;
 
-  // Controls
   const controlsCard = document.createElement('section');
   controlsCard.className = 'card';
   controlsCard.innerHTML = `
@@ -71,7 +65,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     </form>
   `;
 
-  // Supplies
   const suppliesCard = document.createElement('section');
   suppliesCard.className = 'card';
   suppliesCard.innerHTML = `
@@ -80,7 +73,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     <div class="muted" id="spares"></div>
   `;
 
-  // Party
   const partyCard = document.createElement('section');
   partyCard.className = 'card';
   partyCard.innerHTML = `
@@ -88,7 +80,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     <div id="party-list" class="party-list"></div>
   `;
 
-  // Log
   const logCard = document.createElement('section');
   logCard.className = 'card';
   logCard.innerHTML = `
@@ -99,7 +90,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
   wrap.append(progressCard, controlsCard, suppliesCard, partyCard, logCard);
   root.appendChild(wrap);
 
-  // Wire up control widgets
   const paceSel = controlsCard.querySelector('#pace');
   const rationsSel = controlsCard.querySelector('#rations');
   const btnTravel = controlsCard.querySelector('#btn-travel');
@@ -127,18 +117,23 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     if (journeyComplete()) return;
     const beforeMiles = game.data.miles;
     const summary = applyTravelDay(game);
-
-    // Landmarks reached this day
     const crossed = landmarksCrossed(landmarks, beforeMiles, game.data.miles);
-    for (const lm of crossed) addLog(`Reached ${lm.name}.`);
-
+    for (const lm of crossed) game.data.log.push(`Reached ${lm.name}.`);
     const starv = summary.starvation ? ' Short on food.' : ' A full meal.';
-    addLog(`Day ${game.data.day - 1}: Traveled ${fmtMiles(summary.milesTraveled)}. Ate ${fmtLb(summary.foodConsumed)}.${starv} Health ${fmtSigned(summary.healthDelta)}.`);
+    game.data.log.push(`Day ${game.data.day - 1}: Traveled ${fmtMiles(summary.milesTraveled)}. Ate ${fmtLb(summary.foodConsumed)}.${starv} Health ${fmtSigned(summary.healthDelta)}.`);
     game.save();
-    render();
+    drawLog(); render();
 
-    // Maybe open an event
     await maybeOpenEvent();
+
+    // After events, if a landmark was reached today, open the latest one.
+    if (crossed.length) {
+      const lm = crossed[crossed.length - 1];
+      // Persist "at landmark" so refresh doesn't lose it
+      game.data.flags.atLandmarkId = lm.id;
+      game.save();
+      onReachLandmark?.(lm);
+    }
   });
 
   btnRest.addEventListener('click', async (e) => {
@@ -146,27 +141,24 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     if (journeyComplete()) return;
     const summary = applyRestDay(game);
     const starv = summary.starvation ? ' Short on food.' : ' A full meal.';
-    addLog(`Day ${game.data.day - 1}: Rested. Ate ${fmtLb(summary.foodConsumed)}.${starv} Health ${fmtSigned(summary.healthDelta)}.`);
+    game.data.log.push(`Day ${game.data.day - 1}: Rested. Ate ${fmtLb(summary.foodConsumed)}.${starv} Health ${fmtSigned(summary.healthDelta)}.`);
     game.save();
-    render();
+    drawLog(); render();
 
-    // Maybe open an event
     await maybeOpenEvent();
   });
 
   async function maybeOpenEvent() {
+    const { maybeTriggerEvent } = await import('../systems/eventEngine.js');
     const session = await maybeTriggerEvent(game);
     if (!session) return;
+    const { showEventModal } = await import('./EventModal.js');
     await showEventModal(session, { game });
-    // Event may have changed state; re-render and show any fresh log lines
     game.save();
-    drawLog();
-    render();
+    drawLog(); render();
   }
 
-  // ---------- render ----------
   function render() {
-    // Header / progress
     const miles = Math.min(game.data.miles, totalMiles);
     const pct = Math.max(0, Math.min(100, (miles / totalMiles) * 100));
     progressCard.querySelector('#journey-sub').textContent =
@@ -176,7 +168,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     progressCard.querySelector('#progress-left').textContent = `${fmtMiles(0)}`;
     progressCard.querySelector('#progress-right').textContent = `${fmtMiles(totalMiles)}`;
 
-    // Next landmark
     const next = nextLandmark(landmarks, miles);
     const nl = progressCard.querySelector('#next-landmark');
     if (next) {
@@ -186,7 +177,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
       nl.textContent = 'Journey complete (more content unlocks in later phases).';
     }
 
-    // Supplies (added Money row)
     const sup = suppliesCard.querySelector('#supplies');
     sup.innerHTML = '';
     sup.append(
@@ -198,7 +188,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     const spares = suppliesCard.querySelector('#spares');
     spares.textContent = `Spare parts — Wheels: ${game.data.inventory.wheel ?? 0}, Axles: ${game.data.inventory.axle ?? 0}, Tongues: ${game.data.inventory.tongue ?? 0}`;
 
-    // Party
     const list = partyCard.querySelector('#party-list');
     list.innerHTML = '';
     for (const m of game.data.party) {
@@ -218,19 +207,12 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
       list.appendChild(row);
     }
 
-    // Travel enabled?
     const completed = journeyComplete();
     btnTravel.disabled = completed || (game.data.party || []).every(p => p.status === 'dead');
   }
 
   function journeyComplete() {
     return game.data.miles >= totalMiles;
-  }
-
-  function addLog(line) {
-    game.data.log.push(line);
-    if (game.data.log.length > 200) game.data.log.splice(0, game.data.log.length - 200);
-    drawLog();
   }
 
   function drawLog() {
@@ -244,7 +226,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     }
   }
 
-  // Utilities (landmarks)
   function nextLandmark(lms, miles) {
     return lms.find(l => l.mile > miles) || null;
   }
@@ -274,7 +255,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
     return el;
   }
 
-  // Formatters
   function fmtMiles(n) { return `${Number(n).toFixed(0)} mi`; }
   function fmtLb(n)    { return `${Number(n).toFixed(1)} lb`; }
   function fmtNumber(n){ return `${Number(n ?? 0).toLocaleString()}`; }
@@ -288,15 +268,22 @@ export async function mountTravelScreen(root, { game, onBackToTitle }) {
       .replaceAll("'", '&#039;');
   }
 
-  // Initial render
+  // Initial render + initial "setting out" message if missing
   if (!game.data.flags?.phase2_init_logged) {
-    const here = nextLandmark(landmarks, -1) ?? { name: 'the trailhead', mile: 0 };
-    addLog(`Setting out from ${here.name}.`);
+    const here = landmarks.find(l => l.mile <= 0) ?? { name: 'the trailhead', mile: 0 };
+    game.data.log.push(`Setting out from ${here.name}.`);
     game.data.flags.phase2_init_logged = true;
     game.save();
   }
   drawLog();
   render();
+
+  // If we loaded into a save that is parked at a landmark, open it immediately.
+  const parkedId = game.data.flags?.atLandmarkId;
+  if (parkedId) {
+    const lm = landmarks.find(l => l.id === parkedId);
+    if (lm) onReachLandmark?.(lm);
+  }
 
   return () => wrap.remove();
 }
