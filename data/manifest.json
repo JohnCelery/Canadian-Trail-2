@@ -1,5 +1,5 @@
 {
-  "//": "Asset manifest: if a file is missing, systems/assets.js will generate a crisp placeholder with the provided size & a label.",
+  "//": "Asset manifest: if a file is missing, systems/assets.js generates a crisp placeholder with the given size & a label.",
   "images": {
     "ui.icon_money":    { "src": "assets/img/ui/icon_money.png",    "w": 32,  "h": 32,  "label": "Money" },
     "ui.icon_food":     { "src": "assets/img/ui/icon_food.png",     "w": 32,  "h": 32,  "label": "Food" },
@@ -8,6 +8,10 @@
     "ui.icon_clothes":  { "src": "assets/img/ui/icon_clothes.png",  "w": 32,  "h": 32,  "label": "Clothes" },
 
     "scene.bg_plains":  { "src": "assets/img/scene/bg_plains.png",  "w": 960, "h": 320, "label": "Plains" },
-    "scenes.title":     { "src": "assets/img/scene/title_bg.png",   "w": 1200,"h": 540, "label": "Title" }
+    "scenes.title":     { "src": "assets/img/scene/title_bg.png",   "w": 1200,"h": 540, "label": "Title" },
+
+    "sprites.rabbit":   { "src": "assets/img/sprites/rabbit.png",   "w": 28,  "h": 18,  "label": "Rabbit" },
+    "sprites.deer":     { "src": "assets/img/sprites/deer.png",     "w": 56,  "h": 36,  "label": "Deer" },
+    "sprites.buffalo":  { "src": "assets/img/sprites/buffalo.png",  "w": 88,  "h": 56,  "label": "Bison" }
   }
 }
