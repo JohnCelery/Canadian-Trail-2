@@ -1,5 +1,29 @@
 [
-  { "id": "rabbit",  "name": "Rabbit",  "speed": 2.1, "meat": 2,   "spawnWeight": 3 },
-  { "id": "deer",    "name": "Deer",    "speed": 1.2, "meat": 40,  "spawnWeight": 5 },
-  { "id": "buffalo", "name": "Bison",   "speed": 0.8, "meat": 300, "spawnWeight": 1 }
+  {
+    "id": "rabbit",
+    "name": "Snowshoe Rabbit",
+    "w": 28,
+    "h": 18,
+    "speed": 190,
+    "yieldLb": 2,
+    "spawnWeight": 6
+  },
+  {
+    "id": "deer",
+    "name": "Whitetail Deer",
+    "w": 56,
+    "h": 36,
+    "speed": 120,
+    "yieldLb": 60,
+    "spawnWeight": 3
+  },
+  {
+    "id": "buffalo",
+    "name": "Prairie Bison",
+    "w": 88,
+    "h": 56,
+    "speed": 80,
+    "yieldLb": 200,
+    "spawnWeight": 1
+  }
 ]
