@@ -1,5 +1,8 @@
-// Canadian Trail — Phase 5 main entry
-// Adds hazard crossings (rivers & Canadian obstacles) as a modal when a hazard landmark is reached.
+// Canadian Trail — Phase 5 (hotfix)
+// - If a hazard and a service landmark are crossed in the same day, open the hazard modal first,
+//   then automatically open the next service landmark that was also crossed that day.
+// - Uses an optional transient hint flag (_followServiceId) set by TravelScreen for precision;
+//   otherwise falls back to scanning landmarks by mile range.
 
 import { loadJSON, showInitError } from './systems/jsonLoader.js';
 import { loadAssets } from './systems/assets.js';
@@ -62,13 +65,47 @@ async function init() {
           onBackToTitle: toTitle,
           onReachLandmark: async (landmark) => {
             if (landmark.hazard && landmark.hazard.kind) {
-              // Open hazard modal on top of Travel. If still blocked afterwards,
-              // the parked flag keeps it reopening next time.
+              // Show the hazard modal
               await showRiverModal(landmark, { game });
-              // If hazard cleared and services exist, optionally show the landmark card (shop etc.)
-              if (!game.data.flags?.atLandmarkId && Array.isArray(landmark.services) && landmark.services.length) {
+
+              // If still blocked, the parked flag remains and we'll reopen next time.
+              if (game.data.flags?.atLandmarkId) return;
+
+              // If the Travel screen set a precise follow-up shop id, use it.
+              let nextServiceId = game.data.flags?._followServiceId;
+              if (nextServiceId) {
+                delete game.data.flags._followServiceId;
+                game.save();
+              }
+
+              // If we cleared the hazard and there is a service landmark also crossed today,
+              // open it automatically. Prefer the hinted id, else scan by mile range.
+              if (!nextServiceId) {
+                const all = await loadJSON('../data/landmarks.json');
+                all.sort((a, b) => a.mile - b.mile);
+                const trailing = all
+                  .filter(l =>
+                    l.mile > (landmark.mile || 0) &&
+                    l.mile <= (game.data.miles || 0) &&
+                    Array.isArray(l.services) && l.services.length
+                  );
+                nextServiceId = trailing.length ? trailing[trailing.length - 1].id : null;
+              }
+
+              if (nextServiceId) {
+                const all = await loadJSON('../data/landmarks.json');
+                const nextLm = all.find(l => l.id === nextServiceId);
+                if (nextLm) {
+                  toLandmark(nextLm);
+                  return;
+                }
+              }
+
+              // Otherwise, if this very hazard landmark happens to have services, open it.
+              if (Array.isArray(landmark.services) && landmark.services.length) {
                 toLandmark(landmark);
               }
+              // Else just remain on Travel.
             } else {
               toLandmark(landmark);
             }
