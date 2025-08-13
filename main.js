@@ -1,5 +1,5 @@
-// Canadian Trail — Phase 4 main entry
-// Adds navigation to Landmark & Shop screens when you reach a location.
+// Canadian Trail — Phase 5 main entry
+// Adds hazard crossings (rivers & Canadian obstacles) as a modal when a hazard landmark is reached.
 
 import { loadJSON, showInitError } from './systems/jsonLoader.js';
 import { loadAssets } from './systems/assets.js';
@@ -8,6 +8,7 @@ import { mountTitleScreen } from './ui/TitleScreen.js';
 import { mountTravelScreen } from './ui/TravelScreen.js';
 import { mountLandmarkScreen } from './ui/LandmarkScreen.js';
 import { mountShopScreen } from './ui/ShopScreen.js';
+import { showRiverModal } from './ui/RiverModal.js';
 
 const app = document.getElementById('app');
 
@@ -59,9 +60,18 @@ async function init() {
         mountTravelScreen(root, {
           game,
           onBackToTitle: toTitle,
-          onReachLandmark: (landmark) => {
-            // Persist "at landmark" already set by Travel; open screen
-            toLandmark(landmark);
+          onReachLandmark: async (landmark) => {
+            if (landmark.hazard && landmark.hazard.kind) {
+              // Open hazard modal on top of Travel. If still blocked afterwards,
+              // the parked flag keeps it reopening next time.
+              await showRiverModal(landmark, { game });
+              // If hazard cleared and services exist, optionally show the landmark card (shop etc.)
+              if (!game.data.flags?.atLandmarkId && Array.isArray(landmark.services) && landmark.services.length) {
+                toLandmark(landmark);
+              }
+            } else {
+              toLandmark(landmark);
+            }
           }
         })
       );
@@ -74,7 +84,6 @@ async function init() {
           landmark,
           onOpenShop: () => toShop(landmark),
           onContinue: () => {
-            // Clear flag and return to travel
             if (game.data.flags) delete game.data.flags.atLandmarkId;
             game.save();
             toTravel();
@@ -93,9 +102,7 @@ async function init() {
       );
     };
 
-    // First screen
     if (hasSave) {
-      // Load so we can immediately continue if user chooses
       try { game.continueGame(); } catch {}
     }
     toTitle();
