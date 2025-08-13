@@ -475,3 +475,21 @@ input.qty {
   gap: 0.25rem;
   font-size: var(--step-0);
 }
+
+/* === Phase 6: Hunting UI === */
+.hunt-wrap { padding: var(--space-5); }
+.hunt-canvas-wrap { display: grid; place-items: center; margin-top: var(--space-4); }
+#hunt-canvas { display: block; border: 1px solid var(--border); background: #0a0d12; }
+
+.hunt-hud {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr auto;
+  gap: var(--space-3);
+  align-items: center;
+  margin-top: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in lab, var(--bg-elev), var(--border) 6%);
+}
+.hunt-hud strong { font-weight: 700; }
