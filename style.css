@@ -1,4 +1,387 @@
 /* ===================================================================
+   Canadian Trail — Design System (Phase 2)
+   - Mobile-first, responsive, accessible
+   - Clean variables, spacing scale, buttons, cards, modal base
+   - Pixel-crisp rendering for images/canvas
+   - Adds progress bar, simple grid layout, controls styling
+   =================================================================== */
+
+:root {
+  /* Typography */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+  /* Type scale (fluid) */
+  --step--1: clamp(0.80rem, 0.76rem + 0.2vw, 0.9rem);
+  --step-0:  clamp(1.00rem, 0.94rem + 0.4vw, 1.125rem);
+  --step-1:  clamp(1.25rem, 1.15rem + 0.6vw, 1.5rem);
+  --step-2:  clamp(1.56rem, 1.35rem + 1.2vw, 1.95rem);
+  --step-3:  clamp(1.95rem, 1.6rem + 1.8vw, 2.5rem);
+  --step-4:  clamp(2.44rem, 1.9rem + 2.6vw, 3.2rem);
+
+  /* Spacing scale (4px base) */
+  --space-0: 0;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* Radius & shadows */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --shadow-1: 0 2px 6px rgba(0,0,0,0.08), 0 12px 24px rgba(0,0,0,0.06);
+  --shadow-2: 0 4px 10px rgba(0,0,0,0.12), 0 20px 32px rgba(0,0,0,0.10);
+
+  /* Palette (accessible contrast) */
+  --bg: #0f1115;
+  --bg-elev: #171a21;
+  --bg-hero: radial-gradient(1200px 500px at 10% 10%, #223 0%, transparent 60%),
+             radial-gradient(900px 500px at 90% 0%, #1f2a3a 0%, transparent 60%),
+             linear-gradient(180deg, #11131a 0%, #0b0d11 100%);
+
+  --text: #e8ecf1;
+  --text-muted: #bbc6d3;
+  --border: #2a2f3a;
+
+  --accent: #6be675;
+  --accent-strong: #4cd35a;
+  --accent-contrast: #06200a;
+
+  --warn: #ffcc66;
+  --danger: #ff6b6b;
+  --info: #67b7ff;
+
+  --focus: #ffd54d;
+
+  /* Layout */
+  --container-max: 980px;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f6f7fb;
+    --bg-elev: #ffffff;
+    --text: #182032;
+    --text-muted: #465065;
+    --border: #d6d9e4;
+    --bg-hero: radial-gradient(1200px 500px at 10% 10%, #e8f5ff 0%, transparent 60%),
+               radial-gradient(900px 500px at 90% 0%, #e7ffe9 0%, transparent 60%),
+               linear-gradient(180deg, #f6f9ff 0%, #edf2fb 100%);
+    --accent-contrast: #051306;
+  }
+}
+
+/* Base reset */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+img, canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  background: var(--info);
+  color: #000;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-sm);
+  z-index: 1000;
+}
+
+/* Container */
+.container {
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding: var(--space-5) var(--space-4);
+}
+
+/* Hero panel (Title screen) */
+.hero {
+  background: var(--bg-hero);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-2);
+  padding: clamp(1rem, 3vw, 2rem);
+  overflow: clip;
+}
+.hero__content {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  align-items: center;
+}
+@media (min-width: 720px) {
+  .hero__content {
+    grid-template-columns: 1.2fr 0.8fr;
+  }
+}
+.hero h1 {
+  font-size: var(--step-4);
+  margin: 0 0 var(--space-3) 0;
+  letter-spacing: 0.02em;
+}
+.hero p { margin: 0 0 var(--space-5) 0; color: var(--text-muted); }
+.hero__logo {
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.06), transparent 40%) border-box;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius-md);
+}
+
+/* Cards */
+.card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-1);
+}
+.card h2 { margin-top: 0; font-size: var(--step-2); }
+.card-warn {
+  border-color: color-mix(in lab, var(--warn), var(--border) 50%);
+}
+
+/* Buttons */
+.btn-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.btn {
+  --btn-bg: var(--accent);
+  --btn-fg: #000;
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  padding: 0.85rem 1.2rem;
+  font-weight: 700;
+  font-size: var(--step-0);
+  cursor: pointer;
+  background: linear-gradient(180deg, var(--btn-bg), var(--btn-bg));
+  color: var(--btn-fg);
+  box-shadow: 0 0 0 1px rgba(0,0,0,0.1) inset, 0 6px 18px rgba(0,0,0,0.09);
+  transition: transform 0.06s ease, filter 0.2s ease;
+}
+.btn:hover { filter: brightness(1.05); }
+.btn:active { transform: translateY(1px) scale(0.99); }
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.btn-secondary {
+  --btn-bg: #aeb7c8;
+  --btn-fg: #111;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+/* Focus ring (keyboard visibility) */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+/* Modal base (for later phases) */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.modal[open] {
+  display: flex;
+}
+.modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+}
+.modal__dialog {
+  position: relative;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  max-width: 560px;
+  width: calc(100% - 2rem);
+  box-shadow: var(--shadow-2);
+}
+
+/* Error banner injected by JS */
+.error-banner {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 2000;
+  background: var(--danger);
+  color: #000;
+  padding: 0.75rem 1rem;
+  font-weight: 700;
+  display: grid;
+  gap: 0.25rem;
+  border-top: 3px solid #000;
+}
+.error-banner small {
+  opacity: 0.9;
+  font-weight: 600;
+}
+
+/* Utilities */
+.center { text-align: center; }
+.mono { font-family: var(--font-mono); font-size: 0.9em; }
+.muted { color: var(--text-muted); }
+.spacer { height: var(--space-6); }
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Phase 2 layout */
+.grid-layout {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 880px) {
+  .grid-layout {
+    grid-template-columns: 1.2fr 0.8fr;
+    grid-auto-rows: min-content;
+  }
+}
+
+/* Progress bar */
+.progress {
+  display: grid;
+  gap: var(--space-3);
+}
+.progress__bar {
+  height: 14px;
+  background: color-mix(in lab, var(--border), transparent 30%);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  width: 0%;
+}
+.progress__labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--step--1);
+  color: var(--text-muted);
+}
+
+/* Controls */
+.controls {
+  display: grid;
+  gap: var(--space-4);
+}
+.controls label {
+  display: grid;
+  gap: 0.35rem;
+}
+.controls select {
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.75rem;
+  font-size: var(--step-0);
+}
+
+/* Supplies */
+.supplies-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+@media (min-width: 560px) {
+  .supplies-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+.supply {
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: var(--space-3);
+  align-items: center;
+}
+.supply__pic {
+  display: grid;
+  place-items: center;
+}
+.supply__text > .mono {
+  font-weight: 700;
+}
+
+/* Party */
+.party-list {
+  display: grid;
+  gap: var(--space-3);
+}
+.party-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--space-3);
+  align-items: center;
+}
+.party-name .muted { margin-left: 0.25rem; font-size: 0.95em; }
+.party-health {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.party-health meter {
+  width: 120px;
+  height: 1rem;
+}
+
+/* Log */
+.log {
+  margin: 0;
+  padding-left: 1.25rem;
+  max-height: 260px;
+  overflow: auto;
+  scroll-behavior: smooth;
+}
+/* ===================================================================
    Canadian Trail — Design System (Phase 4)
    - Adds chips (services), shop grid, quantity controls, summary pills
    =================================================================== */
