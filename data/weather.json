@@ -1,0 +1,100 @@
+{
+"patterns": [
+{
+"id": "nice_day",
+"name": "Bluebird Nice Day",
+"emoji": "☀️",
+"blurb": "Clear skies and smug optimism.",
+"weight": 4,
+"mods": { "speedMult": 1.10, "healthDelta": 0, "hungerMult": 1.0 }
+},
+{
+"id": "whiteout_eh",
+"name": "Whiteout, eh?",
+"emoji": "❄️",
+"blurb": "Snow from all directions, including mysterious sideways.",
+"weight": 2,
+"mods": { "speedMult": 0.65, "healthDelta": -1, "hungerMult": 1.05 }
+},
+{
+"id": "geese_headwind",
+"name": "Geese Headwind",
+"emoji": "🪿",
+"blurb": "A V‑formation of honks right in your face.",
+"weight": 3,
+"mods": { "speedMult": 0.80, "healthDelta": 0, "hungerMult": 1.0 }
+},
+{
+"id": "chinook_zoomies",
+"name": "Chinook Tailwind Zoomies",
+"emoji": "🌬️",
+"blurb": "Prairie air decides to help for once.",
+"weight": 2,
+"mods": { "speedMult": 1.25, "healthDelta": 0, "hungerMult": 0.95 }
+},
+{
+"id": "maple_mist",
+"name": "Maple Mist",
+"emoji": "🍁",
+"blurb": "Atmosphere lightly caramelized.",
+"weight": 2,
+"mods": { "speedMult": 0.90, "healthDelta": 0, "hungerMult": 1.1 }
+},
+{
+"id": "hail_toonies",
+"name": "Hail the Size of Toonies",
+"emoji": "🪙",
+"blurb": "Duck and cover! Canadian coin‑sized hail.",
+"weight": 2,
+"mods": { "speedMult": 0.80, "healthDelta": -1, "hungerMult": 1.0 }
+},
+{
+"id": "slushocalypse",
+"name": "Slushocalypse",
+"emoji": "🥤",
+"blurb": "Every surface = 7‑Eleven floor in March.",
+"weight": 2,
+"mods": { "speedMult": 0.75, "healthDelta": 0, "hungerMult": 1.05 }
+},
+{
+"id": "blackfly_siege",
+"name": "Blackfly Siege",
+"emoji": "🪰",
+"blurb": "They don’t bite, they negotiate.",
+"weight": 2,
+"mods": { "speedMult": 0.85, "healthDelta": -1, "hungerMult": 1.0 }
+},
+{
+"id": "humidex_soup",
+"name": "Humidex Soup",
+"emoji": "🌫️",
+"blurb": "Breathing molasses, walking in soup.",
+"weight": 2,
+"mods": { "speedMult": 0.90, "healthDelta": 0, "hungerMult": 1.05 }
+},
+{
+"id": "aurora_distraction",
+"name": "Aurora Distraction",
+"emoji": "🌌",
+"blurb": "Too busy going “wow” to go fast.",
+"weight": 2,
+"mods": { "speedMult": 0.95, "healthDelta": 0, "hungerMult": 1.0 }
+},
+{
+"id": "polite_rain",
+"name": "Polite Rain",
+"emoji": "🌧️",
+"blurb": "Apologizes before falling.",
+"weight": 3,
+"mods": { "speedMult": 0.95, "healthDelta": 0, "hungerMult": 1.0 }
+},
+{
+"id": "road_salt_storm",
+"name": "Road Salt Storm",
+"emoji": "🧂",
+"blurb": "Season everything.",
+"weight": 1,
+"mods": { "speedMult": 0.85, "healthDelta": -1, "hungerMult": 1.0 }
+}
+]
+}
