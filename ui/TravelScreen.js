@@ -1,11 +1,11 @@
-// ui/TravelScreen.js — Phase 4
-// Integrates Landmarks: when you reach a landmark, open a Landmark screen,
-// from which you can enter the Shop (if available) or continue.
+// ui/TravelScreen.js — Phase 5 (hotfix: hazard-first landing + follow-up shop hint)
+// When multiple landmarks are crossed in one day, open the first hazard crossed.
+// If a service landmark (e.g., shop) was also crossed later that day, we set a
+// private follow-up hint flag so main.js can open it after the hazard is resolved.
 
 import { getImage, getMeta } from '../systems/assets.js';
 import { loadJSON } from '../systems/jsonLoader.js';
 import { applyTravelDay, applyRestDay, PACE, RATIONS, milesPerDay, RATIONS_LB } from '../systems/travel.js';
-import { maybeTriggerEvent } from '../systems/eventEngine.js';
 
 export async function mountTravelScreen(root, { game, onBackToTitle, onReachLandmark }) {
   const landmarks = await loadJSON('../data/landmarks.json');
@@ -115,24 +115,46 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
   btnTravel.addEventListener('click', async (e) => {
     e.preventDefault();
     if (journeyComplete()) return;
+
     const beforeMiles = game.data.miles;
     const summary = applyTravelDay(game);
+
+    // Landmarks reached this day (may be multiple)
     const crossed = landmarksCrossed(landmarks, beforeMiles, game.data.miles);
+
+    // Log all crossed
     for (const lm of crossed) game.data.log.push(`Reached ${lm.name}.`);
+
     const starv = summary.starvation ? ' Short on food.' : ' A full meal.';
     game.data.log.push(`Day ${game.data.day - 1}: Traveled ${fmtMiles(summary.milesTraveled)}. Ate ${fmtLb(summary.foodConsumed)}.${starv} Health ${fmtSigned(summary.healthDelta)}.`);
     game.save();
     drawLog(); render();
 
+    // Events may fire first
     await maybeOpenEvent();
 
-    // After events, if a landmark was reached today, open the latest one.
+    // Choose which landmark to open:
+    // 1) the first hazard crossed today
+    // 2) otherwise the last crossed (usual behavior)
     if (crossed.length) {
-      const lm = crossed[crossed.length - 1];
-      // Persist "at landmark" so refresh doesn't lose it
-      game.data.flags.atLandmarkId = lm.id;
+      const firstHazard = crossed.find(l => l.hazard && l.hazard.kind);
+      const lmToOpen = firstHazard ?? crossed[crossed.length - 1];
+
+      // If we chose a hazard but also crossed a service landmark *after* it,
+      // leave a hint so main.js can open that shop after the hazard is cleared.
+      if (firstHazard) {
+        const trailingService = crossed
+          .filter(l => l.mile > firstHazard.mile && Array.isArray(l.services) && l.services.length)
+          .slice(-1)[0];
+        if (trailingService) {
+          game.data.flags._followServiceId = trailingService.id; // private hint for this turn
+        }
+      }
+
+      // Persist "at" so refresh keeps us blocked
+      game.data.flags.atLandmarkId = lmToOpen.id;
       game.save();
-      onReachLandmark?.(lm);
+      onReachLandmark?.(lmToOpen);
     }
   });
 
@@ -268,7 +290,7 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
       .replaceAll("'", '&#039;');
   }
 
-  // Initial render + initial "setting out" message if missing
+  // Initial render + reopen if parked at a landmark (hazard or not)
   if (!game.data.flags?.phase2_init_logged) {
     const here = landmarks.find(l => l.mile <= 0) ?? { name: 'the trailhead', mile: 0 };
     game.data.log.push(`Setting out from ${here.name}.`);
@@ -278,7 +300,6 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
   drawLog();
   render();
 
-  // If we loaded into a save that is parked at a landmark, open it immediately.
   const parkedId = game.data.flags?.atLandmarkId;
   if (parkedId) {
     const lm = landmarks.find(l => l.id === parkedId);
