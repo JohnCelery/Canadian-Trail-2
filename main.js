@@ -1,8 +1,5 @@
-// Canadian Trail — Phase 5 (hotfix)
-// - If a hazard and a service landmark are crossed in the same day, open the hazard modal first,
-//   then automatically open the next service landmark that was also crossed that day.
-// - Uses an optional transient hint flag (_followServiceId) set by TravelScreen for precision;
-//   otherwise falls back to scanning landmarks by mile range.
+// Canadian Trail — Phase 6 main entry
+// Adds Hunting screen and wires it from Travel; keeps Phase 5 hazard behavior.
 
 import { loadJSON, showInitError } from './systems/jsonLoader.js';
 import { loadAssets } from './systems/assets.js';
@@ -12,6 +9,7 @@ import { mountTravelScreen } from './ui/TravelScreen.js';
 import { mountLandmarkScreen } from './ui/LandmarkScreen.js';
 import { mountShopScreen } from './ui/ShopScreen.js';
 import { showRiverModal } from './ui/RiverModal.js';
+import { mountHuntingScreen } from './ui/HuntingScreen.js';
 
 const app = document.getElementById('app');
 
@@ -63,23 +61,17 @@ async function init() {
         mountTravelScreen(root, {
           game,
           onBackToTitle: toTitle,
+          onHunt: () => toHunt(),
           onReachLandmark: async (landmark) => {
             if (landmark.hazard && landmark.hazard.kind) {
-              // Show the hazard modal
               await showRiverModal(landmark, { game });
-
-              // If still blocked, the parked flag remains and we'll reopen next time.
               if (game.data.flags?.atLandmarkId) return;
 
-              // If the Travel screen set a precise follow-up shop id, use it.
               let nextServiceId = game.data.flags?._followServiceId;
               if (nextServiceId) {
                 delete game.data.flags._followServiceId;
                 game.save();
               }
-
-              // If we cleared the hazard and there is a service landmark also crossed today,
-              // open it automatically. Prefer the hinted id, else scan by mile range.
               if (!nextServiceId) {
                 const all = await loadJSON('../data/landmarks.json');
                 all.sort((a, b) => a.mile - b.mile);
@@ -91,21 +83,14 @@ async function init() {
                   );
                 nextServiceId = trailing.length ? trailing[trailing.length - 1].id : null;
               }
-
               if (nextServiceId) {
                 const all = await loadJSON('../data/landmarks.json');
                 const nextLm = all.find(l => l.id === nextServiceId);
-                if (nextLm) {
-                  toLandmark(nextLm);
-                  return;
-                }
+                if (nextLm) { toLandmark(nextLm); return; }
               }
-
-              // Otherwise, if this very hazard landmark happens to have services, open it.
               if (Array.isArray(landmark.services) && landmark.services.length) {
                 toLandmark(landmark);
               }
-              // Else just remain on Travel.
             } else {
               toLandmark(landmark);
             }
@@ -135,6 +120,15 @@ async function init() {
           game,
           landmark,
           onExit: () => toLandmark(landmark)
+        })
+      );
+    };
+
+    const toHunt = () => {
+      ScreenManager.show((root) =>
+        mountHuntingScreen(root, {
+          game,
+          onExit: () => toTravel()
         })
       );
     };
