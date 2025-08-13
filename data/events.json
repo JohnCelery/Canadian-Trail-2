@@ -1,81 +1,360 @@
 [
   {
-    "id": "stuck-wagon",
-    "title": "Wagon stuck in mud",
+    "id": "tim-hortons-lineup",
+    "title": "Tim Hortons Lineup",
     "weight": 4,
-    "when": { "minDay": 2, "mileLt": 300 },
+    "when": { "minDay": 2, "mileLt": 400 },
     "stages": [
       {
         "id": "start",
-        "text": "Rains turned the trail to muck. The wagon sinks to its axles.",
+        "text": "A Tim Hortons appears. The lineup loops twice around the block.",
         "choices": [
-          { "id": "push", "label": "Push together", "effects": [ { "type": "time", "days": 1 } ], "goto": "end" },
-          { "id": "unload", "label": "Unload and lighten", "effects": [ { "type": "time", "days": 0.5 }, { "type": "morale", "delta": -1 } ], "goto": "end" }
+          { "id": "join", "label": "Join the line for a double‑double", "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": 1 } ], "goto": "rollup" },
+          { "id": "skip", "label": "Skip it—American coffee in the thermos", "effects": [ { "type": "morale", "delta": -1 } ], "goto": "end" },
+          { "id": "buy", "label": "Buy a dozen for the line ($6)", "requires": { "moneyGte": 6 }, "effects": [ { "type": "money", "delta": -6 }, { "type": "morale", "delta": 2 } ], "goto": "rollup" }
+        ]
+      },
+      {
+        "id": "rollup",
+        "text": "“Roll Up The Rim” — you check the cup.",
+        "choices": [
+          {
+            "id": "roll",
+            "label": "Roll it!",
+            "effects": [
+              {
+                "type": "roll",
+                "options": [
+                  { "weight": 3, "effects": [ { "type": "money", "delta": 0 } ], "log": "Sorry—Please Play Again." },
+                  { "weight": 2, "effects": [ { "type": "money", "delta": 2 } ], "log": "You win a toonie!" },
+                  { "weight": 1, "effects": [ { "type": "money", "delta": 10 } ], "log": "Big win — $10 gift card!" }
+                ]
+              }
+            ],
+            "goto": "end"
+          }
         ]
       }
     ]
   },
+
   {
-    "id": "child-fever",
-    "title": "A child runs a fever",
+    "id": "street-hockey-overtime",
+    "title": "Street Hockey Overtime",
     "weight": 3,
-    "when": { "minDay": 3 },
+    "when": { "minDay": 3, "mileLt": 400 },
     "stages": [
       {
         "id": "start",
-        "text": "Through the night, {child} shivers with fever.",
+        "text": "Kids close the road for street hockey. A net straddles the centerline.",
         "choices": [
-          { "id": "rest", "label": "Rest a day", "effects": [ { "type": "time", "days": 1 }, { "type": "health", "target": "family", "delta": 1 } ], "goto": "end" },
-          { "id": "dose", "label": "Dose medicine", "requires": { "inventory": { "medicineGte": 1 } }, "effects": [ { "type": "inventory", "item": "medicine", "delta": -1 }, { "type": "health", "target": "child", "delta": 1 }, { "type": "morale", "delta": 1 } ], "goto": "end" }
+          { "id": "goalie", "label": "Volunteer as goalie", "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": 2 } ], "goto": "bruise" },
+          { "id": "pucks", "label": "Buy pucks to win goodwill ($3)", "requires": { "moneyGte": 3 }, "effects": [ { "type": "money", "delta": -3 }, { "type": "distance", "miles": 2 } ], "goto": "end" },
+          {
+            "id": "debate",
+            "label": "Debate Habs vs. Leafs",
+            "effects": [
+              {
+                "type": "roll",
+                "options": [
+                  { "weight": 2, "effects": [ { "type": "morale", "delta": 1 } ], "log": "They accept your take with polite nods." },
+                  { "weight": 1, "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": -1 } ], "log": "It goes to heated overtime." }
+                ]
+              }
+            ],
+            "goto": "end"
+          }
+        ]
+      },
+      {
+        "id": "bruise",
+        "text": "A slapshot finds bare shin.",
+        "choices": [
+          { "id": "shrug", "label": "Shake it off", "effects": [ { "type": "health", "target": "random", "delta": -1 } ], "goto": "end" },
+          { "id": "treat", "label": "Use bandage (medicine −1)", "requires": { "inventory": { "medicineGte": 1 } }, "effects": [ { "type": "inventory", "item": "medicine", "delta": -1 }, { "type": "health", "target": "random", "delta": 1 } ], "goto": "end" }
         ]
       }
     ]
   },
+
   {
-    "id": "broken-axle",
-    "title": "Broken axle",
-    "weight": 4,
-    "when": { "minDay": 2, "mileGte": 100 },
+    "id": "metric-speed-trap",
+    "title": "Metric Speed Trap",
+    "weight": 3,
+    "when": { "minDay": 4 },
     "stages": [
       {
         "id": "start",
-        "text": "A rut snaps an axle with a crack.",
+        "text": "A Mountie waves you over. “Do you know how fast you were going, in kilometers?”",
         "choices": [
-          { "id": "spare", "label": "Use a spare axle", "requires": { "inventory": { "axleGte": 1 } }, "effects": [ { "type": "inventory", "item": "axle", "delta": -1 }, { "type": "time", "days": 0.5 } ], "goto": "end" },
-          { "id": "improvise", "label": "Improvise a repair", "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": -1 } ], "goto": "end" }
+          {
+            "id": "apologize",
+            "label": "Apologize profusely",
+            "effects": [
+              {
+                "type": "roll",
+                "options": [
+                  { "weight": 3, "effects": [ { "type": "money", "delta": -5 } ], "log": "Reduced fine for honesty." },
+                  { "weight": 1, "effects": [ { "type": "money", "delta": -10 }, { "type": "time", "days": 1 } ], "log": "Paperwork takes a while." }
+                ]
+              }
+            ],
+            "goto": "end"
+          },
+          {
+            "id": "confuse",
+            "label": "Claim mph/kmh confusion",
+            "effects": [
+              {
+                "type": "roll",
+                "options": [
+                  { "weight": 2, "effects": [ { "type": "money", "delta": -3 }, { "type": "morale", "delta": 1 } ], "log": "A warning and a stern chart." },
+                  { "weight": 1, "effects": [ { "type": "money", "delta": -12 }, { "type": "morale", "delta": -1 } ], "log": "No mercy today." }
+                ]
+              }
+            ],
+            "goto": "end"
+          },
+          { "id": "dash", "label": "Try a totally legal U‑turn (don’t)", "effects": [ { "type": "distance", "miles": -5 }, { "type": "morale", "delta": -1 } ], "goto": "end" }
         ]
       }
     ]
   },
+
   {
-    "id": "bandits",
-    "title": "Roadside bandits",
+    "id": "canadian-tire-pitstop",
+    "title": "Canadian Tire Pit Stop",
     "weight": 2,
     "when": { "minDay": 5 },
     "stages": [
       {
         "id": "start",
-        "text": "Figures step from the brush and demand coin.",
+        "text": "A worrying rattle. Canadian Tire beckons with fluorescent optimism.",
         "choices": [
-          { "id": "pay", "label": "Pay $10", "requires": { "moneyGte": 10 }, "effects": [ { "type": "money", "delta": -10 }, { "type": "morale", "delta": -1 } ], "goto": "end" },
-          { "id": "stand", "label": "Stand firm", "effects": [ { "type": "roll", "options": [ { "weight": 2, "effects": [ { "type": "health", "target": "random", "delta": -1 }, { "type": "morale", "delta": -1 } ], "log": "A scuffle leaves bruises." }, { "weight": 1, "effects": [ { "type": "inventory", "item": "bullets", "delta": -3 }, { "type": "morale", "delta": 1 } ], "log": "They back down at the sight of steel." } ] } ], "goto": "end" },
-          { "id": "run", "label": "Run the team hard", "effects": [ { "type": "distance", "miles": -5 } ], "goto": "end" }
+          { "id": "buywheel", "label": "Buy a replacement wheel ($12)", "requires": { "moneyGte": 12 }, "effects": [ { "type": "money", "delta": -12 }, { "type": "inventory", "item": "wheel", "delta": 1 }, { "type": "morale", "delta": 1 } ], "goto": "install" },
+          { "id": "ducttape", "label": "Duct tape and hope", "effects": [ { "type": "morale", "delta": -1 }, { "type": "mapFlag", "key": "ductTapeFix", "value": true } ], "goto": "end" },
+          {
+            "id": "askctm",
+            "label": "Ask about Canadian Tire Money",
+            "effects": [
+              {
+                "type": "roll",
+                "options": [
+                  { "weight": 2, "effects": [ { "type": "money", "delta": 2 } ], "log": "Found some crumpled CT money that actually spends." },
+                  { "weight": 1, "effects": [ { "type": "money", "delta": 0 }, { "type": "morale", "delta": 1 } ], "log": "A shiny keychain instead." }
+                ]
+              }
+            ],
+            "goto": "end"
+          }
+        ]
+      },
+      {
+        "id": "install",
+        "text": "Do you install it now?",
+        "choices": [
+          { "id": "yes", "label": "Install now", "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": 1 } ], "goto": "end" },
+          { "id": "later", "label": "Toss it in the trunk", "effects": [ { "type": "morale", "delta": 0 } ], "goto": "end" }
         ]
       }
     ]
   },
+
   {
-    "id": "snakebite",
-    "title": "Snakebite!",
-    "weight": 1,
-    "when": { "minDay": 4, "mileLt": 600 },
+    "id": "moose-standoff",
+    "title": "Moose Standoff",
+    "weight": 2,
+    "when": { "minDay": 6, "mileLt": 700 },
     "stages": [
       {
         "id": "start",
-        "text": "A hidden coil, a flash—someone is bitten.",
+        "text": "A moose treats the road like a living room.",
         "choices": [
-          { "id": "treat", "label": "Clean and treat", "effects": [ { "type": "health", "target": "random", "delta": -1 } ], "goto": "end" },
-          { "id": "grave", "label": "It turns for the worse…", "effects": [ { "type": "mortality", "target": "random", "reason": "Taken by a sudden bite." } ], "goto": "end" }
+          { "id": "wait", "label": "Wait with reverence", "effects": [ { "type": "time", "days": 1 } ], "goto": "end" },
+          {
+            "id": "honk",
+            "label": "Honk (politely)",
+            "effects": [
+              {
+                "type": "roll",
+                "options": [
+                  { "weight": 3, "effects": [ { "type": "morale", "delta": 1 } ], "log": "It blinks, then wanders off." },
+                  { "weight": 1, "effects": [ { "type": "inventory", "item": "wheel", "delta": -1 }, { "type": "morale", "delta": -1 } ], "log": "It kicks the bumper." }
+                ]
+              }
+            ],
+            "goto": "end"
+          },
+          { "id": "offer", "label": "Offer apples (−5 lb food)", "requires": { "inventory": { "foodGte": 5 } }, "effects": [ { "type": "inventory", "item": "food", "delta": -5 }, { "type": "morale", "delta": 1 } ], "goto": "end" }
+        ]
+      }
+    ]
+  },
+
+  {
+    "id": "maple-syrup-stand",
+    "title": "Roadside Maple Syrup",
+    "weight": 3,
+    "when": { "minDay": 2, "mileLt": 400 },
+    "stages": [
+      {
+        "id": "start",
+        "text": "A hand‑painted sign: “MAPLE SYRUP — CASH ONLY.”",
+        "choices": [
+          { "id": "buy", "label": "Buy a jug ($4)", "requires": { "moneyGte": 4 }, "effects": [ { "type": "money", "delta": -4 }, { "type": "inventory", "item": "food", "delta": 15 }, { "type": "morale", "delta": 1 } ], "goto": "leak" },
+          { "id": "trade", "label": "Trade snacks for syrup (−8 lb food)", "requires": { "inventory": { "foodGte": 8 } }, "effects": [ { "type": "inventory", "item": "food", "delta": -8 }, { "type": "inventory", "item": "food", "delta": 10 }, { "type": "morale", "delta": 1 } ], "goto": "leak" },
+          { "id": "pass", "label": "Pass by, stay sticky‑free", "effects": [ { "type": "morale", "delta": 0 } ], "goto": "end" }
+        ]
+      },
+      {
+        "id": "leak",
+        "text": "The jug seeps in the trunk.",
+        "choices": [
+          { "id": "clean", "label": "Stop to clean", "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": -1 } ], "goto": "end" },
+          { "id": "embrace", "label": "Accept the smell of Canada", "effects": [ { "type": "morale", "delta": 1 } ], "goto": "end" }
+        ]
+      }
+    ]
+  },
+
+  {
+    "id": "cbc-pledge-drive",
+    "title": "CBC Pledge Drive",
+    "weight": 2,
+    "when": { "minDay": 3 },
+    "stages": [
+      {
+        "id": "start",
+        "text": "The radio begs for donations between earnest interviews.",
+        "choices": [
+          { "id": "donate", "label": "Donate $5 for a tote", "requires": { "moneyGte": 5 }, "effects": [ { "type": "money", "delta": -5 }, { "type": "inventory", "item": "clothes", "delta": 1 }, { "type": "morale", "delta": 1 } ], "goto": "end" },
+          {
+            "id": "call",
+            "label": "Call in with a thoughtful comment",
+            "effects": [
+              { "type": "time", "days": 1 },
+              {
+                "type": "roll",
+                "options": [
+                  { "weight": 2, "effects": [ { "type": "morale", "delta": 2 } ], "log": "They air your comment. Star power!" },
+                  { "weight": 1, "effects": [ { "type": "morale", "delta": -1 } ], "log": "On hold forever." }
+                ]
+              }
+            ],
+            "goto": "end"
+          },
+          { "id": "ignore", "label": "Change stations", "effects": [ { "type": "morale", "delta": -1 } ], "goto": "end" }
+        ]
+      }
+    ]
+  },
+
+  {
+    "id": "bilingual-paperwork",
+    "title": "Bilingual Paperwork",
+    "weight": 2,
+    "when": { "minDay": 5, "mileGte": 300 },
+    "stages": [
+      {
+        "id": "start",
+        "text": "A friendly booth offers forms twice as long — in English et en français.",
+        "choices": [
+          { "id": "fill", "label": "Fill both properly", "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": 1 } ], "goto": "end" },
+          { "id": "hire", "label": "Hire a traveling translator ($3)", "requires": { "moneyGte": 3 }, "effects": [ { "type": "money", "delta": -3 }, { "type": "time", "days": 0 }, { "type": "morale", "delta": 1 } ], "goto": "end" },
+          {
+            "id": "guess",
+            "label": "Just initial everything",
+            "effects": [
+              {
+                "type": "roll",
+                "options": [
+                  { "weight": 2, "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": -1 } ], "log": "Back of the line." },
+                  { "weight": 1, "effects": [ { "type": "distance", "miles": -5 }, { "type": "morale", "delta": -1 } ], "log": "Wrong lane entirely." }
+                ]
+              }
+            ],
+            "goto": "end"
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "id": "snowplow-convoy",
+    "title": "Snowplow Convoy",
+    "weight": 2,
+    "when": { "minDay": 6, "mileGte": 500 },
+    "stages": [
+      {
+        "id": "start",
+        "text": "A convoy of plows barrels past in heroic slow motion.",
+        "choices": [
+          { "id": "tail", "label": "Tuck in behind", "effects": [ { "type": "distance", "miles": 5 }, { "type": "morale", "delta": 1 } ], "goto": "end" },
+          { "id": "chat", "label": "Chat at the roadside and wait", "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": 1 } ], "goto": "end" },
+          {
+            "id": "attempt",
+            "label": "Try to pass (don’t)",
+            "effects": [
+              {
+                "type": "roll",
+                "options": [
+                  { "weight": 2, "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": -1 } ], "log": "Salt spray blinds you." },
+                  { "weight": 1, "effects": [ { "type": "inventory", "item": "axle", "delta": -1 }, { "type": "morale", "delta": -1 } ], "log": "A chunky pothole claims an axle." }
+                ]
+              }
+            ],
+            "goto": "end"
+          }
+        ]
+      }
+    ]
+  },
+
+  {
+    "id": "heritage-minute-shoot",
+    "title": "Heritage Minute Shoot",
+    "weight": 1,
+    "when": { "minDay": 4 },
+    "stages": [
+      {
+        "id": "start",
+        "text": "A film crew blocks the road. They’re shooting a Heritage Minute.",
+        "choices": [
+          { "id": "extra", "label": "Volunteer as background extra", "effects": [ { "type": "time", "days": 1 }, { "type": "money", "delta": 2 }, { "type": "morale", "delta": 2 } ], "goto": "end" },
+          { "id": "craft", "label": "Raid craft services (−2 lb food)", "requires": { "inventory": { "foodGte": 2 } }, "effects": [ { "type": "inventory", "item": "food", "delta": -2 }, { "type": "morale", "delta": 1 } ], "goto": "end" },
+          { "id": "detour", "label": "Detour around the set", "effects": [ { "type": "distance", "miles": -3 } ], "goto": "end" }
+        ]
+      }
+    ]
+  },
+
+  {
+    "id": "loonie-toonie-shortage",
+    "title": "Exact Change Only",
+    "weight": 2,
+    "when": { "minDay": 3 },
+    "stages": [
+      {
+        "id": "start",
+        "text": "A toll booth demands exact change. Loonies? Toonies?",
+        "choices": [
+          { "id": "overpay", "label": "Overpay and move on ($2)", "requires": { "moneyGte": 2 }, "effects": [ { "type": "money", "delta": -2 }, { "type": "morale", "delta": 0 } ], "goto": "end" },
+          {
+            "id": "swap",
+            "label": "Trade with locals",
+            "effects": [
+              {
+                "type": "roll",
+                "options": [
+                  { "weight": 2, "effects": [ { "type": "money", "delta": -1 }, { "type": "morale", "delta": 1 } ], "log": "A friendly swap—plus coin collecting tips." },
+                  { "weight": 1, "effects": [ { "type": "time", "days": 1 } ], "log": "Exact change achieved after much rummaging." }
+                ]
+              }
+            ],
+            "goto": "end"
+          },
+          { "id": "argue", "label": "Argue American bills are legal tender everywhere", "effects": [ { "type": "time", "days": 1 }, { "type": "morale", "delta": -1 } ], "goto": "end" }
         ]
       }
     ]
