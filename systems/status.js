@@ -85,11 +85,11 @@ after.push({ type: 'recovered', cond });
 }
 }
 if (after.length) {
-// Remove expired and write logs
-for (const a of after) {
-const { cond } = a;
-game.data.log.push(${cond.emoji} Recovered from ${cond.name}.);
-}
+    // Remove expired and write logs
+    for (const a of after) {
+    const { cond } = a;
+    game.data.log.push(`${cond.emoji} Recovered from ${cond.name}.`);
+    }
 game.data.status.conditions = game.data.status.conditions.filter(c => c.daysRemaining > 0);
 }
 
@@ -121,8 +121,8 @@ hungerMult: typeof pick?.effects?.hungerMult === 'number' ? pick.effects.hungerM
 },
 blurb: pick.blurb || ''
 };
-game.data.status.conditions.push(instance);
-game.data.log.push(${instance.emoji} ${instance.name} — ${instance.blurb} (${dur} day${dur > 1 ? 's' : ''}).);
+      game.data.status.conditions.push(instance);
+      game.data.log.push(`${instance.emoji} ${instance.name} — ${instance.blurb} (${dur} day${dur > 1 ? 's' : ''}).`);
 }
 }
 }
@@ -178,17 +178,17 @@ const party = game.data.party || [];
 for (const m of party) {
 if (m.status !== 'dead') {
 m.health = Math.max(0, Math.min(5, (m.health | 0) + delta));
-if (m.health === 0) {
-m.status = 'dead';
-game.data.log.push(${m.name} died${reason ? (${reason}) : ''}.);
+      if (m.health === 0) {
+      m.status = 'dead';
+      game.data.log.push(`${m.name} died${reason ? ` (${reason})` : ''}.`);
+      }
 }
 }
-}
-if (delta > 0) {
-game.data.log.push(Party recovered ${delta} health each${reason ? (${reason}) : ''}.);
-} else {
-game.data.log.push(Party lost ${-delta} health each${reason ? (${reason}) : ''}.);
-}
+  if (delta > 0) {
+  game.data.log.push(`Party recovered ${delta} health each${reason ? ` (${reason})` : ''}.`);
+  } else {
+  game.data.log.push(`Party lost ${-delta} health each${reason ? ` (${reason})` : ''}.`);
+  }
 }
 
 /** Small utility for UI to list active funny chips (optional for now) */

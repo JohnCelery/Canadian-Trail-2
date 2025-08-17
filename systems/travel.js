@@ -131,7 +131,7 @@ const paceLabel = {
 [PACE.STRENUOUS]: 'Strenuous',
 [PACE.GRUELING]: 'Grueling'
 }[pace] || 'Steady';
-const summary = ${paceLabel} pace: traveled ${milesTraveled} mi, ate ${foodConsumed} lb${starvation ? ' (shortage!)' : ''}${healthDelta ? , health ${healthDelta > 0 ? '+' : ''}${healthDelta} : ''}.;
+const summary = `${paceLabel} pace: traveled ${milesTraveled} mi, ate ${foodConsumed} lb${starvation ? ' (shortage!)' : ''}${healthDelta ? `, health ${healthDelta > 0 ? '+' : ''}${healthDelta}` : ''}.`;
 game.data.log.push(summary);
 
 return { milesTraveled, foodConsumed, healthDelta, starvation };
@@ -175,7 +175,7 @@ healthDelta += (w.healthDelta | 0) + (s.healthDelta | 0);
 if (healthDelta !== 0) applyHealthToParty(game, healthDelta);
 game.data.day = (game.data.day | 0) + 1;
 
-const summary = Rested: ate ${foodConsumed} lb${shortage ? ' (shortage!)' : ''}${healthDelta ? , health ${healthDelta > 0 ? '+' : ''}${healthDelta} : ''}.;
+const summary = `Rested: ate ${foodConsumed} lb${shortage ? ' (shortage!)' : ''}${healthDelta ? `, health ${healthDelta > 0 ? '+' : ''}${healthDelta}` : ''}.`;
 game.data.log.push(summary);
 
 return { milesTraveled: 0, foodConsumed, healthDelta, starvation: shortage > 0 };
