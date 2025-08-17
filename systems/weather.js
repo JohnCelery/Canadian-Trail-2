@@ -84,7 +84,7 @@ blurb: p.blurb,
 mods: { ...p.mods }
 };
 // friendly log line
-game.data.log.push(Weather — ${p.emoji} ${p.name}: ${p.blurb});
+game.data.log.push(`Weather — ${p.emoji} ${p.name}: ${p.blurb}`);
 return gw.today;
 }
 
@@ -108,9 +108,9 @@ export function describeToday(game) {
 const t = getToday(game);
 if (!t) return 'Weather — (unknown)';
 const m = t.mods || {};
-const spd = m.speedMult && m.speedMult !== 1 ? speed×${m.speedMult.toFixed(2)} : '';
-const hp = m.healthDelta ? health ${m.healthDelta > 0 ? '+' : ''}${m.healthDelta} : '';
-const eat = m.hungerMult && m.hungerMult !== 1 ? appetite×${m.hungerMult.toFixed(2)} : '';
+const spd = m.speedMult && m.speedMult !== 1 ? `speed×${m.speedMult.toFixed(2)}` : '';
+const hp = m.healthDelta ? `health ${m.healthDelta > 0 ? '+' : ''}${m.healthDelta}` : '';
+const eat = m.hungerMult && m.hungerMult !== 1 ? `appetite×${m.hungerMult.toFixed(2)}` : '';
 const parts = [spd, hp, eat].filter(Boolean).join(', ');
-return Weather — ${t.emoji} ${t.name}${parts ? (${parts}) : ''};
+return `Weather — ${t.emoji} ${t.name}${parts ? ` (${parts})` : ''}`;
 }
