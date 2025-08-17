@@ -1,32 +1,40 @@
 <!doctype html>
 <html lang="en">
-  <!--
-    Canadian Trail — Phase 1 Bootstrap
-    - Static, vanilla ES modules
-    - Mobile-first, accessible, no frameworks
-    - Title screen only for now; Travel screen is a stub
-  -->
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Canadian Trail</title>
-    <meta name="color-scheme" content="light dark" />
-    <meta name="description" content="Canadian Trail — a day-by-day pioneer journey. Phase 1 bootstrap." />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <a class="skip-link" href="#app" aria-label="Skip to main content">Skip to content</a>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Canadian Trail</title>
 
-    <main id="app" class="container" role="main" tabindex="-1" aria-live="polite">
-      <!-- App content mounts here -->
-      <noscript>
-        <div class="card card-warn" role="alert">
-          <h2>JavaScript required</h2>
-          <p>This game is a web app and needs JavaScript enabled.</p>
-        </div>
-      </noscript>
-    </main>
+  <!-- IMPORTANT: relative paths for GitHub Pages repo subpaths -->
+  <link rel="preload" href="./styles.css" as="style">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <!-- Accessible skip link (hidden by CSS until focused) -->
+  <a class="skip-link" href="#app">Skip to content</a>
 
-    <script type="module" src="./main.js"></script>
-  </body>
+  <!-- App mount point -->
+  <main id="app" role="main" aria-label="Game app" tabindex="-1"></main>
+
+  <!-- Load the app with a defensive import so a clear error shows if it fails -->
+  <script type="module">
+    import('./main.js').catch(err => {
+      const box = document.createElement('div');
+      box.role = 'alert';
+      box.style.cssText = 'padding:1rem;margin:1rem;border:2px solid #a00;background:#fff3f3;color:#a00;font-family:system-ui,Arial,sans-serif;';
+      box.innerHTML = `<strong>Failed to load <code>main.js</code></strong><br>
+        This usually means the file path is wrong for GitHub Pages.<br>
+        Expected URL: <code>${new URL('./main.js', location.href).pathname}</code><br>
+        Error: <code>${String(err)}</code>`;
+      document.body.prepend(box);
+      console.error('[index] main.js failed to load', err);
+    });
+  </script>
+
+  <noscript>
+    <p style="padding:1rem;margin:1rem;border:2px solid #555;background:#eee;font-family:system-ui,Arial,sans-serif;">
+      This game needs JavaScript enabled.
+    </p>
+  </noscript>
+</body>
 </html>
