@@ -4,6 +4,8 @@
 
 import { getImage, getMeta } from '../systems/assets.js';
 import { loadJSON } from '../systems/jsonLoader.js';
+import { getToday, getModifiersForToday } from '../systems/weather.js';
+import { listActive } from '../systems/status.js';
 import { applyTravelDay, applyRestDay, PACE, RATIONS, milesPerDay, RATIONS_LB } from '../systems/travel.js';
 
 function milesPerDayForPace(pace) {
@@ -17,6 +19,25 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
 
   const wrap = document.createElement('div');
   wrap.className = 'grid-layout';
+
+  const hudCard = document.createElement('aside');
+  hudCard.className = 'card travel-hud';
+  hudCard.setAttribute('aria-label', 'Daily status heads-up display');
+  hudCard.innerHTML = `
+    <h2 class="travel-hud__title">Trail HUD</h2>
+    <div class="travel-hud__grid">
+      <div class="travel-hud__item" id="hud-weather" role="group" aria-labelledby="hud-weather-heading" aria-live="polite" tabindex="0">
+        <h3 id="hud-weather-heading" class="travel-hud__subtitle">Weather</h3>
+        <p class="travel-hud__primary" id="hud-weather-primary"></p>
+        <p class="travel-hud__blurb muted" id="hud-weather-blurb"></p>
+        <ul class="travel-hud__hints" id="hud-weather-hints"></ul>
+      </div>
+      <div class="travel-hud__item" id="hud-conditions" role="group" aria-labelledby="hud-conditions-heading" aria-live="polite" tabindex="0">
+        <h3 id="hud-conditions-heading" class="travel-hud__subtitle">Conditions</h3>
+        <ul class="travel-hud__list" id="hud-conditions-list"></ul>
+      </div>
+    </div>
+  `;
 
   const progressCard = document.createElement('section');
   progressCard.className = 'card';
@@ -91,8 +112,15 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
     <ol id="log" class="log" aria-live="polite"></ol>
   `;
 
-  wrap.append(progressCard, controlsCard, suppliesCard, partyCard, logCard);
+  wrap.append(hudCard, progressCard, controlsCard, suppliesCard, partyCard, logCard);
   root.appendChild(wrap);
+
+  const hudWeather = hudCard.querySelector('#hud-weather');
+  const hudWeatherPrimary = hudCard.querySelector('#hud-weather-primary');
+  const hudWeatherBlurb = hudCard.querySelector('#hud-weather-blurb');
+  const hudWeatherHints = hudCard.querySelector('#hud-weather-hints');
+  const hudConditions = hudCard.querySelector('#hud-conditions');
+  const hudConditionsList = hudCard.querySelector('#hud-conditions-list');
 
   const paceSel = controlsCard.querySelector('#pace');
   const rationsSel = controlsCard.querySelector('#rations');
@@ -182,7 +210,98 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
     drawLog(); render();
   }
 
+  function renderHud() {
+    const today = getToday(game);
+    const mods = getModifiersForToday(game);
+
+    hudWeatherHints.innerHTML = '';
+
+    if (!today) {
+      hudWeatherPrimary.innerHTML = `
+        <span class="travel-hud__emoji" aria-hidden="true">❔</span>
+        <span class="travel-hud__label">No forecast yet</span>
+      `;
+      hudWeatherBlurb.textContent = 'Travel or rest to reveal today\'s weather.';
+      hudWeather.setAttribute('aria-label', "Weather information not yet available. Travel or rest to reveal today's weather.");
+      hudWeather.title = "Weather information not yet available. Travel or rest to reveal today's weather.";
+      const li = document.createElement('li');
+      li.className = 'travel-hud__hint';
+      li.textContent = 'Weather rolls after you travel or rest.';
+      hudWeatherHints.appendChild(li);
+    } else {
+      const emoji = today.emoji || '☁️';
+      hudWeatherPrimary.innerHTML = `
+        <span class="travel-hud__emoji" aria-hidden="true">${escapeHTML(emoji)}</span>
+        <span class="travel-hud__label">${escapeHTML(today.name || 'Unknown weather')}</span>
+      `;
+      hudWeatherBlurb.textContent = today.blurb || 'No additional notes.';
+
+      const hints = buildWeatherHints(mods);
+      if (hints.length) {
+        for (const hint of hints) {
+          const li = document.createElement('li');
+          li.className = 'travel-hud__hint';
+          li.textContent = hint;
+          hudWeatherHints.appendChild(li);
+        }
+      } else {
+        const li = document.createElement('li');
+        li.className = 'travel-hud__hint';
+        li.textContent = 'No additional effects.';
+        hudWeatherHints.appendChild(li);
+      }
+
+      const ariaHints = hints.length ? ` Effects: ${hints.join(', ')}.` : ' No additional effects.';
+      hudWeather.setAttribute('aria-label', `Today's weather: ${emoji} ${today.name}. ${today.blurb || 'No additional notes.'}${ariaHints}`);
+      hudWeather.title = `Today's weather: ${emoji} ${today.name}. ${today.blurb || 'No additional notes.'}${ariaHints}`;
+    }
+
+    hudConditionsList.innerHTML = '';
+    const active = listActive(game);
+    if (!active.length) {
+      const li = document.createElement('li');
+      li.className = 'travel-hud__empty';
+      li.textContent = 'No active conditions.';
+      hudConditionsList.appendChild(li);
+      hudConditions.setAttribute('aria-label', 'No active conditions.');
+      hudConditions.title = 'No active conditions.';
+    } else {
+      const ariaParts = [];
+      for (const cond of active) {
+        const li = document.createElement('li');
+        li.className = 'travel-hud__condition';
+        li.innerHTML = `
+          <span class="travel-hud__emoji" aria-hidden="true">${escapeHTML(cond.emoji || '🩺')}</span>
+          <span class="travel-hud__label">${escapeHTML(cond.name)}</span>
+          <span class="travel-hud__hint mono">${cond.daysRemaining} day${cond.daysRemaining === 1 ? '' : 's'} left</span>
+        `;
+        li.setAttribute('aria-label', `${cond.name}, ${cond.daysRemaining} day${cond.daysRemaining === 1 ? '' : 's'} remaining.`);
+        hudConditionsList.appendChild(li);
+        ariaParts.push(`${cond.name} ${cond.daysRemaining} day${cond.daysRemaining === 1 ? '' : 's'} remaining`);
+      }
+      hudConditions.setAttribute('aria-label', `Active conditions: ${ariaParts.join('; ')}.`);
+      hudConditions.title = `Active conditions: ${ariaParts.join('; ')}.`;
+    }
+
+    function buildWeatherHints(overlays) {
+      const hints = [];
+      if (typeof overlays.speedMult === 'number' && Math.abs(overlays.speedMult - 1) > 0.01) {
+        const pct = Math.round(overlays.speedMult * 100);
+        hints.push(`Travel speed ${pct}% of normal`);
+      }
+      if (typeof overlays.hungerMult === 'number' && Math.abs(overlays.hungerMult - 1) > 0.01) {
+        const pct = Math.round(overlays.hungerMult * 100);
+        hints.push(`Food use ${pct}% of normal`);
+      }
+      if (typeof overlays.healthDelta === 'number' && overlays.healthDelta !== 0) {
+        hints.push(`Health ${overlays.healthDelta > 0 ? '+' : ''}${overlays.healthDelta} per day`);
+      }
+      return hints;
+    }
+  }
+
   function render() {
+    renderHud();
     const miles = Math.min(game.data.miles, totalMiles);
     const pct = Math.max(0, Math.min(100, (miles / totalMiles) * 100));
     progressCard.querySelector('#journey-sub').textContent =
