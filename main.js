@@ -10,6 +10,7 @@ import { mountLandmarkScreen } from './ui/LandmarkScreen.js';
 import { mountShopScreen } from './ui/ShopScreen.js';
 import { showRiverModal } from './ui/RiverModal.js';
 import { mountHuntingScreen } from './ui/HuntingScreen.js';
+import { mountEndScreen } from './ui/EndScreen.js';
 
 const app = document.getElementById('app');
 
@@ -56,12 +57,29 @@ async function init() {
       );
     };
 
+    const toEnd = (details = {}) => {
+      ScreenManager.show((root) =>
+        mountEndScreen(root, {
+          game,
+          result: details,
+          onPlayAgain: () => {
+            const newSeed = GameState.randomSeed();
+            console.log('[Canadian Trail] Play Again with seed:', newSeed);
+            game.startNewGame(newSeed);
+            toTravel();
+          },
+          onBackToTitle: () => toTitle()
+        })
+      );
+    };
+
     const toTravel = () => {
       ScreenManager.show((root) =>
         mountTravelScreen(root, {
           game,
           onBackToTitle: toTitle,
           onHunt: () => toHunt(),
+          onGameOver: (details) => toEnd(details),
           onReachLandmark: async (landmark) => {
             if (landmark.hazard && landmark.hazard.kind) {
               await showRiverModal(landmark, { game });

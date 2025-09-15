@@ -1,5 +1,6 @@
 // ui/TravelScreen.js — Phase 6
 // Adds "Go Hunting" (one outing per day), while keeping hazard-first behavior.
+// Detects journey completion or total party loss and forwards to the end screen.
 // Hunting is disabled if: no bullets, already hunted today, or you're blocked at a hazard.
 
 import { getImage, getMeta } from '../systems/assets.js';
@@ -12,10 +13,11 @@ function milesPerDayForPace(pace) {
   return milesPerDay({ data: { settings: { pace } } });
 }
 
-export async function mountTravelScreen(root, { game, onBackToTitle, onReachLandmark, onHunt }) {
+export async function mountTravelScreen(root, { game, onBackToTitle, onReachLandmark, onHunt, onGameOver }) {
   const landmarks = await loadJSON('../data/landmarks.json');
   landmarks.sort((a, b) => a.mile - b.mile);
   const totalMiles = landmarks.length ? landmarks[landmarks.length - 1].mile : 1000;
+  let ended = false;
 
   const wrap = document.createElement('div');
   wrap.className = 'grid-layout';
@@ -147,14 +149,16 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
 
   btnHunt.addEventListener('click', async (e) => {
     e.preventDefault();
-    if (btnHunt.disabled) return;
+    if (btnHunt.disabled || ended) return;
     await onHunt?.(); // main.js handles screen swap; when we return, just refresh UI
     drawLog(); render();
+    checkForGameOver();
   });
 
   btnTravel.addEventListener('click', async (e) => {
     e.preventDefault();
-    if (journeyComplete()) return;
+    if (ended || journeyComplete()) return;
+    if (checkForGameOver()) return;
 
     const beforeMiles = game.data.miles;
     const summary = applyTravelDay(game);
@@ -167,7 +171,11 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
     game.save();
     drawLog(); render();
 
+    if (checkForGameOver()) return;
+
     await maybeOpenEvent();
+
+    if (checkForGameOver()) return;
 
     if (crossed.length) {
       const firstHazard = crossed.find(l => l.hazard && l.hazard.kind);
@@ -190,17 +198,21 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
 
   btnRest.addEventListener('click', async (e) => {
     e.preventDefault();
-    if (journeyComplete()) return;
+    if (ended || journeyComplete()) return;
+    if (checkForGameOver()) return;
     const summary = applyRestDay(game);
     const starv = summary.starvation ? ' Short on food.' : ' A full meal.';
     game.data.log.push(`Day ${game.data.day - 1}: Rested. Ate ${fmtLb(summary.foodConsumed)}.${starv} Health ${fmtSigned(summary.healthDelta)}.`);
     game.save();
     drawLog(); render();
 
+    if (checkForGameOver()) return;
+
     await maybeOpenEvent();
   });
 
   async function maybeOpenEvent() {
+    if (ended) return;
     const { maybeTriggerEvent } = await import('../systems/eventEngine.js');
     const session = await maybeTriggerEvent(game);
     if (!session) return;
@@ -208,6 +220,7 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
     await showEventModal(session, { game });
     game.save();
     drawLog(); render();
+    checkForGameOver();
   }
 
   function renderHud() {
@@ -351,13 +364,15 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
     }
 
     const completed = journeyComplete();
-    btnTravel.disabled = completed || (game.data.party || []).every(p => p.status === 'dead');
+    const everyoneDead = (game.data.party || []).length > 0 && (game.data.party || []).every(p => p.status === 'dead');
+    btnTravel.disabled = completed || everyoneDead || ended;
 
     // Hunting gating
     const huntedToday = Number(game.data.flags?.lastHuntDay || 0) === Number(game.data.day || 1);
     const atHazard = !!game.data.flags?.atLandmarkId;
     const bullets = Number(game.data.inventory.bullets || 0);
-    btnHunt.disabled = huntedToday || atHazard || bullets <= 0;
+    btnRest.disabled = completed || everyoneDead || ended;
+    btnHunt.disabled = huntedToday || atHazard || bullets <= 0 || everyoneDead || ended;
     btnHunt.title = huntedToday ? 'You already hunted today.' :
                     atHazard ? 'Clear the obstacle first.' :
                     bullets <= 0 ? 'No bullets remaining.' : 'Go hunting (30s)';
@@ -376,6 +391,45 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
       li.textContent = item;
       logEl.appendChild(li);
     }
+  }
+
+  function triggerGameOver(details = {}) {
+    if (ended) return true;
+    ended = true;
+    const survivorsCount = typeof details.survivors === 'number'
+      ? details.survivors
+      : (game.data.party || []).filter(p => p.status !== 'dead').length;
+    const storedTotal = Number(details.totalMiles);
+    const payload = {
+      ...details,
+      reason: details.reason || (survivorsCount > 0 ? 'completed' : 'party_dead'),
+      day: details.day ?? Math.max(1, Number(game.data.day) || 1),
+      miles: details.miles ?? Math.round(Number(game.data.miles) || 0),
+      survivors: survivorsCount,
+      totalMiles: Number.isFinite(storedTotal) && storedTotal > 0 ? storedTotal : totalMiles
+    };
+    if (!game.data.flags || typeof game.data.flags !== 'object') game.data.flags = {};
+    game.data.flags.gameOver = payload;
+    game.save();
+    queueMicrotask(() => onGameOver?.(payload));
+    return true;
+  }
+
+  function checkForGameOver() {
+    if (ended) return true;
+    const stored = game.data.flags?.gameOver;
+    if (stored && stored.reason) {
+      return triggerGameOver(stored);
+    }
+    const partyArr = game.data.party || [];
+    const allDead = partyArr.length > 0 && partyArr.every(p => p.status === 'dead');
+    const finished = journeyComplete();
+    if (!allDead && !finished) return false;
+    const survivors = partyArr.filter(p => p.status !== 'dead').length;
+    const reason = allDead ? 'party_dead' : 'completed';
+    const day = Math.max(1, Number(game.data.day) || 1);
+    const miles = Math.round(Number(game.data.miles) || 0);
+    return triggerGameOver({ reason, day, miles, survivors });
   }
 
   function nextLandmark(lms, miles) {
@@ -429,6 +483,10 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
   }
   drawLog();
   render();
+
+  queueMicrotask(() => {
+    checkForGameOver();
+  });
 
   const parkedId = game.data.flags?.atLandmarkId;
   if (parkedId) {
