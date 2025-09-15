@@ -99,7 +99,29 @@ export class GameState {
     parsed.money ??= 50;
     parsed.morale ??= 0;
     parsed.buffs ??= {};
+    parsed.flags ??= {};
+    if (typeof parsed.flags !== 'object' || parsed.flags === null) parsed.flags = {};
+    parsed.settings ??= { pace: 'steady', rations: 'normal' };
+    if (typeof parsed.settings !== 'object' || parsed.settings === null) {
+      parsed.settings = { pace: 'steady', rations: 'normal' };
+    } else {
+      parsed.settings.pace ??= 'steady';
+      parsed.settings.rations ??= 'normal';
+    }
+    if (!parsed.inventory || typeof parsed.inventory !== 'object') {
+      parsed.inventory = { food: 0, bullets: 0, clothes: 0, wheel: 0, axle: 0, tongue: 0, medicine: 0 };
+    } else {
+      parsed.inventory.food ??= 0;
+      parsed.inventory.bullets ??= 0;
+      parsed.inventory.clothes ??= 0;
+      parsed.inventory.wheel ??= 0;
+      parsed.inventory.axle ??= 0;
+      parsed.inventory.tongue ??= 0;
+      parsed.inventory.medicine ??= 0;
+    }
+    if (!Array.isArray(parsed.party)) parsed.party = [];
     parsed.epitaphs ??= defaultEpitaphs();
+    if (!Array.isArray(parsed.log)) parsed.log = [];
     this.data = parsed;
     this.rng = new RNG(this.data.rngState || this.data.rngSeed || 1);
   }
