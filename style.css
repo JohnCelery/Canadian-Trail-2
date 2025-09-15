@@ -576,3 +576,197 @@ input.qty {
   background: color-mix(in lab, var(--bg-elev), var(--border) 6%);
 }
 .hunt-hud strong { font-weight: 700; }
+
+/* === End Screen === */
+.end-screen {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 3vw, 3rem) var(--space-4) var(--space-6);
+  display: grid;
+  gap: var(--space-5);
+}
+
+.end-screen:focus { outline: none; }
+
+.end-screen__hero {
+  text-align: center;
+  display: grid;
+  gap: var(--space-4);
+  background:
+    radial-gradient(120% 140% at 50% 0%, rgba(107, 230, 117, 0.18), transparent 70%),
+    color-mix(in lab, var(--bg-elev), var(--accent) 8%);
+  border-color: color-mix(in lab, var(--accent), var(--border) 55%);
+}
+
+.end-screen__hero h1 {
+  margin: 0;
+  font-size: var(--step-3);
+}
+
+.end-screen__tagline {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.end-score {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+}
+
+.end-score__label {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: var(--step--1);
+  color: var(--text-muted);
+}
+
+.end-score__value {
+  font-size: var(--step-3);
+  font-weight: 700;
+  color: var(--accent);
+  text-shadow: 0 0 22px rgba(107, 230, 117, 0.35);
+}
+
+.end-screen__actions {
+  justify-content: center;
+}
+
+.end-card {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.end-summary__grid {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .end-summary__grid {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+.end-summary__stat {
+  padding: var(--space-3);
+  border: 1px solid color-mix(in lab, var(--border), var(--accent) 10%);
+  border-radius: var(--radius-sm);
+  background: color-mix(in lab, var(--bg-elev), var(--border) 6%);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.end-summary__stat-label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: var(--step--1);
+  color: var(--text-muted);
+}
+
+.end-summary__stat-value {
+  font-size: var(--step-1);
+  font-weight: 700;
+}
+
+.end-summary__supplies-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.end-summary__supply {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.55rem 0.75rem;
+  border: 1px solid color-mix(in lab, var(--border), var(--accent) 12%);
+  border-radius: var(--radius-sm);
+  background: color-mix(in lab, var(--bg-elev), var(--border) 6%);
+}
+
+.end-summary__breakdown ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.end-summary__break-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-mono);
+  background: color-mix(in lab, var(--bg-elev), var(--border) 8%);
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.6rem;
+}
+
+.end-summary__break-item span:first-child {
+  font-family: var(--font-sans);
+}
+
+.end-party__grid {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 680px) {
+  .end-party__grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+
+.end-party__member {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in lab, var(--bg-elev), var(--border) 6%);
+}
+
+.end-party__member.is-dead {
+  border-color: color-mix(in lab, var(--danger), var(--border) 55%);
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.08), transparent);
+}
+
+.end-party__icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.end-party__name {
+  font-size: var(--step-0);
+  font-weight: 700;
+}
+
+.end-party__status {
+  margin-top: 0.25rem;
+}
+
+.end-party__epitaph {
+  margin: 0.75rem 0 0 0;
+  padding-left: 0.75rem;
+  border-left: 3px solid color-mix(in lab, var(--danger), var(--border) 50%);
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.end-log__list {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.end-log__list li {
+  line-height: 1.4;
+}
