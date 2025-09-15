@@ -6,6 +6,10 @@ import { getImage, getMeta } from '../systems/assets.js';
 import { loadJSON } from '../systems/jsonLoader.js';
 import { applyTravelDay, applyRestDay, PACE, RATIONS, milesPerDay, RATIONS_LB } from '../systems/travel.js';
 
+function milesPerDayForPace(pace) {
+  return milesPerDay({ data: { settings: { pace } } });
+}
+
 export async function mountTravelScreen(root, { game, onBackToTitle, onReachLandmark, onHunt }) {
   const landmarks = await loadJSON('../data/landmarks.json');
   landmarks.sort((a, b) => a.mile - b.mile);
@@ -41,18 +45,18 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
       <label>
         <span>Pace</span>
         <select id="pace">
-          <option value="${PACE.steady}">Steady (${milesPerDay(PACE.steady)} mi/day)</option>
-          <option value="${PACE.strenuous}">Strenuous (${milesPerDay(PACE.strenuous)} mi/day, -1 health/day)</option>
-          <option value="${PACE.grueling}">Grueling (${milesPerDay(PACE.grueling)} mi/day, -2 health/day)</option>
+          <option value="${PACE.STEADY}">Steady (${milesPerDayForPace(PACE.STEADY)} mi/day)</option>
+          <option value="${PACE.STRENUOUS}">Strenuous (${milesPerDayForPace(PACE.STRENUOUS)} mi/day, -1 health/day)</option>
+          <option value="${PACE.GRUELING}">Grueling (${milesPerDayForPace(PACE.GRUELING)} mi/day, -2 health/day)</option>
         </select>
       </label>
 
       <label>
         <span>Rations</span>
         <select id="rations">
-          <option value="${RATIONS.meager}">Meager (${RATIONS_LB.meager} lb/person/day)</option>
-          <option value="${RATIONS.normal}">Normal (${RATIONS_LB.normal} lb/person/day)</option>
-          <option value="${RATIONS.generous}">Generous (${RATIONS_LB.generous} lb/person/day)</option>
+          <option value="${RATIONS.MEAGER}">Meager (${RATIONS_LB[RATIONS.MEAGER]} lb/person/day)</option>
+          <option value="${RATIONS.NORMAL}">Normal (${RATIONS_LB[RATIONS.NORMAL]} lb/person/day)</option>
+          <option value="${RATIONS.GENEROUS}">Generous (${RATIONS_LB[RATIONS.GENEROUS]} lb/person/day)</option>
         </select>
       </label>
 
@@ -97,8 +101,8 @@ export async function mountTravelScreen(root, { game, onBackToTitle, onReachLand
   const btnHunt = controlsCard.querySelector('#btn-hunt');
   const btnTitle = controlsCard.querySelector('#btn-title');
 
-  paceSel.value = game.data.settings?.pace || PACE.steady;
-  rationsSel.value = game.data.settings?.rations || RATIONS.normal;
+  paceSel.value = game.data.settings?.pace || PACE.STEADY;
+  rationsSel.value = game.data.settings?.rations || RATIONS.NORMAL;
 
   paceSel.addEventListener('change', () => {
     game.data.settings.pace = paceSel.value;
